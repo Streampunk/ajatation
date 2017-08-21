@@ -34,6 +34,9 @@ namespace streampunk {
 
 class Playback : public Nan::ObjectWrap
 {
+public:
+	static NAN_MODULE_INIT(Init);
+
 private:
     explicit Playback(uint32_t deviceIndex = 0, uint32_t displayMode = 0, uint32_t pixelFormat = 0);
     ~Playback();
@@ -59,7 +62,7 @@ private:
 
     std::unique_ptr<NTV2Player> player_;
 
-public:
+private:
 
 	bool initNtv2Player();
 	bool shutdownNtv2Player();
@@ -70,7 +73,14 @@ public:
 	void scheduledFrameCompleted();
 	static void _scheduledFrameCompleted(void* context);
 
-	static NAN_MODULE_INIT(Init);
+	NTV2VideoFormat getVideoFormat(uint32_t genericDisplayMode);
+	NTV2FrameBufferFormat getPixelFormat(uint32_t genericPixelFormat);
+
+	uint32_t displayMode_;
+	uint32_t pixelFormat_;
+
+	static const NTV2VideoFormat defaultVideoFormat_ = NTV2_FORMAT_1080i_5994;
+	static const NTV2FrameBufferFormat defaultPixelFormat_ = NTV2_FBF_10BIT_YCBCR;
 };
 
 }

@@ -1,10 +1,10 @@
-var macadam = require('../');
+var ajatation = require('../');
 var fs = require('fs');
 
 var frame = fs.readFileSync('frame_v210.raw');
 
-var playback = new macadam.Playback(0, macadam.bmdModeHD1080i50,
-  macadam.bmdFormat10BitYUV);
+var playback = new ajatation.Playback(0, ajatation.bmdModeHD1080i50,
+  ajatation.bmdFormat10BitYUV);
 
 playback.on('error', console.error.bind(null, 'BMD ERROR:'));
 
@@ -21,10 +21,11 @@ playback.on('played', function() {
 });
 
 process.on('exit', function () {
-  console.log('Exiting node.');
-  playback.stop();
-}
+    console.log('Exiting node.');
+    playback.stop();
+});
+
 process.on('SIGINT', function () {
-  console.log('Received SIGINT.');
-  playback.stop();
-}
+    console.log('Received SIGINT.');
+    playback.stop();
+});

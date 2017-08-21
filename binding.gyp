@@ -47,6 +47,7 @@
 			"-l../aja/ntv2sdkwin_13.0.0.18/lib/libajabase.lib"
         ],
         "include_dirs" : [
+          "src/common",
           "aja/ntv2sdkwin_13.0.0.18/ajalibraries",
           "aja/ntv2sdkwin_13.0.0.18/ajalibraries/ajaanc/includes",
           "aja/ntv2sdkwin_13.0.0.18/ajalibraries/ajantv2/includes",

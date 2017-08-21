@@ -29,6 +29,7 @@
 #include <iostream>
 #include <iomanip>
 #include "ajabase/system/systemtime.h"
+#include "gen2ajaTypeMaps.h"
 
 using namespace std;
 
@@ -48,8 +49,8 @@ inline Nan::Persistent<v8::Function> &Playback::constructor() {
   return myConstructor;
 }
 
-Playback::Playback(uint32_t deviceIndex, uint32_t displayMode,
-    uint32_t pixelFormat)
+Playback::Playback(uint32_t deviceIndex, uint32_t displayMode, uint32_t pixelFormat)
+: displayMode_(displayMode), pixelFormat_(pixelFormat)
 {
   async = new uv_async_t;
   uv_async_init(uv_default_loop(), async, FrameCallback);
@@ -141,49 +142,6 @@ NAN_METHOD(Playback::ScheduleFrame) {
   size_t bufLength = node::Buffer::Length(bufObj);
 
   obj->scheduleFrame(bufData, bufLength);
-
-  /*
-  uint32_t rowBytePixelRatioN = 1, rowBytePixelRatioD = 1;
-  switch (obj->pixelFormat_) { // TODO expand to other pixel formats
-    case bmdFormat10BitYUV:
-      rowBytePixelRatioN = 8; rowBytePixelRatioD = 3;
-      break;
-    default:
-      rowBytePixelRatioN = 2; rowBytePixelRatioD = 1;
-      break;
-  }
-
-  IDeckLinkMutableVideoFrame* frame;
-  if (obj->m_deckLinkOutput->CreateVideoFrame(obj->m_width, obj->m_height,
-      obj->m_width * rowBytePixelRatioN / rowBytePixelRatioD,
-      (BMDPixelFormat) obj->pixelFormat_, bmdFrameFlagDefault, &frame) != S_OK) {
-    info.GetReturnValue().Set(Nan::New("Failed to create frame.").ToLocalChecked());
-    return;
-  };
-  char* bufData = node::Buffer::Data(bufObj);
-  size_t bufLength = node::Buffer::Length(bufObj);
-  char* frameData = NULL;
-  if (frame->GetBytes((void**) &frameData) != S_OK) {
-    info.GetReturnValue().Set(Nan::New("Failed to get new frame bytes.").ToLocalChecked());
-    return;
-  };
-  memcpy(frameData, bufData, bufLength);
-
-  // printf("Frame duration %I64d/%I64d.\n", obj->m_frameDuration, obj->m_timeScale);
-  uv_mutex_lock(&obj->padlock);
-  HRESULT sfr = obj->m_deckLinkOutput->ScheduleVideoFrame(frame,
-      (obj->m_totalFrameScheduled * obj->m_frameDuration),
-      obj->m_frameDuration, obj->m_timeScale);
-  if (sfr != S_OK) {
-    printf("Failed to schedule frame. Code is %i.\n", sfr);
-    info.GetReturnValue().Set(Nan::New("Failed to schedule frame.").ToLocalChecked());
-    uv_mutex_unlock(&obj->padlock);
-    return;
-  };
-
-  obj->m_totalFrameScheduled++;
-  uv_mutex_unlock(&obj->padlock);
-  info.GetReturnValue().Set(obj->m_totalFrameScheduled);*/
 }
 
 
@@ -192,10 +150,9 @@ bool Playback::initNtv2Player()
 	bool  success(false);
 	AJAStatus		status(AJA_STATUS_SUCCESS);
 	const string deviceSpec("0");
-	const string videoFormatStr("");
-	const NTV2VideoFormat	videoFormat(videoFormatStr.empty() ? NTV2_FORMAT_1080i_5994 : CNTV2DemoCommon::GetVideoFormatFromString(videoFormatStr));
-	const string				pixelFormatStr("");
-	const NTV2FrameBufferFormat	pixelFormat(pixelFormatStr.empty() ? NTV2_FBF_10BIT_YCBCR : CNTV2DemoCommon::GetPixelFormatFromString(pixelFormatStr));
+	const NTV2VideoFormat	videoFormat(getVideoFormat(displayMode_));
+	const NTV2FrameBufferFormat	pixelFormat(getPixelFormat(pixelFormat_));
+
 	uint32_t		channelNumber(1);					//	Number of the channel to use
 	int				noAudio(0);					//	Disable audio tone?
 	const NTV2Channel channel(::GetNTV2ChannelForIndex(channelNumber - 1));
@@ -206,10 +163,6 @@ bool Playback::initNtv2Player()
 	player_.reset( new NTV2Player(deviceSpec, (noAudio ? false : true), channel, pixelFormat, outputDest, videoFormat, false, false, doMultiChannel ? true : false, sendType));
 
 	::signal(SIGINT, SignalHandler);
-#if defined (AJAMac)
-	::signal(SIGHUP, SignalHandler);
-	::signal(SIGQUIT, SignalHandler);
-#endif
 
 	//	Initialize the player...
 	status = player_->Init();
@@ -217,28 +170,7 @@ bool Playback::initNtv2Player()
 	{
 		player_->SetScheduledFrameCallback(this, Playback::_scheduledFrameCompleted);
 
-		//	Run the player...
-		//player_->Run();
-
 		success = true;
-		/*
-		cout << "  Playout  Playout   Frames" << endl
-			<< "   Frames   Buffer  Dropped" << endl;
-		do
-		{
-			ULWord	framesProcessed, framesDropped, bufferLevel;
-
-			//	Poll the player's status...
-			player.GetACStatus(framesProcessed, framesDropped, bufferLevel);
-			cout << setw(9) << framesProcessed << setw(9) << bufferLevel << setw(9) << framesDropped << "\r" << flush;
-			AJATime::Sleep(2000);
-		} while (player.IsRunning() && !gGlobalQuit);	//	loop til done
-
-		cout << endl;
-
-		//  Ask the player to stop
-		player.Quit();
-		*/
 	}	//	if player Init succeeded
 	else
 	{
@@ -320,6 +252,35 @@ void Playback::_scheduledFrameCompleted(void* context)
 	Playback* localThis = reinterpret_cast<Playback*>(context);
 
 	localThis->scheduledFrameCompleted();
+}
+
+
+NTV2VideoFormat Playback::getVideoFormat(uint32_t genericDisplayMode)
+{
+	NTV2VideoFormat videoFormat(defaultVideoFormat_);
+	NTV2VideoFormat convertedFormat = DISPLAY_MODE_MAP.ToB(static_cast<GenericDisplayMode>(genericDisplayMode));
+
+	if (convertedFormat != NTV2_FORMAT_UNKNOWN)
+	{
+		videoFormat = convertedFormat;
+	}
+
+	return videoFormat;
+}
+
+
+NTV2FrameBufferFormat Playback::getPixelFormat(uint32_t genericPixelFormat)
+{
+	NTV2FrameBufferFormat pixelFormat(defaultPixelFormat_);
+	NTV2FrameBufferFormat convertedFormat = PIXEL_FORMAT_MAP.ToB(static_cast<GenericPixelFormat>(genericPixelFormat));
+
+
+	if (convertedFormat != NTV2_FBF_INVALID)
+	{
+		pixelFormat = convertedFormat;
+	}
+
+	return pixelFormat;
 }
 
 
