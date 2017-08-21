@@ -1,0 +1,12 @@
+# visual studio working files directories
+*.filters
+*.sdf
+*.suo
+ipch
+Debug
+Release
+AjatationTest/Debug
+AjatationTest/Release
+
+
+
