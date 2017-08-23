@@ -30,6 +30,11 @@ limitations under the License.
 #include "ajabase/system/process.h"
 #include <algorithm>
 
+#ifdef DEBUG_OUTPUT
+#include <iostream>
+#include <stdio.h>
+#endif
+
 using namespace std;
 
 
@@ -491,8 +496,10 @@ void NTV2Player::PlayFrames (void)
 		AUTOCIRCULATE_STATUS	outputStatus;
 		mDevice.AutoCirculateGetStatus (mOutputChannel, outputStatus);
 
+		ULWord numAvailableFrames = outputStatus.GetNumAvailableOutputFrames();
+
 		//	Check if there's room for another frame on the card...
-		if (outputStatus.GetNumAvailableOutputFrames () > 1)
+		if (numAvailableFrames > 1)
 		{
 			//	Wait for the next frame to become ready to "consume"...
 			AVDataBuffer *	playData	(mAVCircularBuffer.StartConsumeNextBuffer ());
@@ -508,9 +515,24 @@ void NTV2Player::PlayFrames (void)
 				mDevice.AutoCirculateTransfer (mOutputChannel, mOutputXferInfo);
 				mAVCircularBuffer.EndConsumeNextBuffer ();	//	Signal that the frame has been "consumed"
 
+				LOG_BUFFER_STATE("Just added to card, requesting next frame");
+
 				if (mScheduleFrameCallback)
 				{
-					mScheduleFrameCallback(mScheduleFrameCallbackContext);
+					// Decrement frames as we've just added one
+					--numAvailableFrames;
+
+					// Request enough frames to fill the buffer
+					// NOTE: this approach keeps the C++ to JS interface simple: i.e. one callback per request
+					// for a new frame; rather than sending back the number of required frames in the callback,
+					// which would change the interface compared with other video cards.
+					// As this only requests frames when the on-card buffer is full, we should never get into the
+					// situation where the input buffer fills up and frames need to be dropped; as there is an
+					// additional circular buffer in front of the on-card buffer to provide extra tolerance.
+					for (uint32_t i = 0; i < numAvailableFrames; i++)
+					{
+						mScheduleFrameCallback(mScheduleFrameCallbackContext);
+					}
 				}
 			}
 		}
@@ -650,6 +672,8 @@ bool NTV2Player::ScheduleFrame(
 	// Lock the circular buffer to prevent collisions with ProduceFrames()
 	AJAAutoLock	autoLock(mLock);	//	Lock the Frame Generator thread to prevent collisions with ScheduleFrame
 
+	LOG_BUFFER_STATE("Scheduling frame");
+
 	AVDataBuffer* frameData(mAVCircularBuffer.StartProduceNextBuffer());
 
 	//  If no frame is available, wait and try again
@@ -686,6 +710,12 @@ bool NTV2Player::ScheduleFrame(
 
 		addedFrame = true;
 	}
+#ifdef DEBUG_OUTPUT
+	else
+	{
+		std::cout << "No frames available, dropping frame!" << std::endl;
+	}
+#endif
 
 	if (unusedFrames != nullptr)
 	{
@@ -714,6 +744,8 @@ void NTV2Player::ProduceFrames (void)
 		//
 		if (mCallback || mAVCircularBuffer.GetCircBufferCount() == 0)
 		{
+			LOG_BUFFER_STATE("Adding colour bar frame");
+
 			AVDataBuffer *	frameData(mAVCircularBuffer.StartProduceNextBuffer());
 
 			//  If no frame is available, wait and try again
@@ -860,6 +892,19 @@ void NTV2Player::DisableRP188Bypass (void)
 
 }	//	DisableRP188Bypass
 
+#ifdef DEBUG_OUTPUT
+void NTV2Player::LogBufferState(const char* location)
+{
+	AUTOCIRCULATE_STATUS	outputStatus;
+	mDevice.AutoCirculateGetStatus(mOutputChannel, outputStatus);
+
+	ULWord numCardBufferFrames		 = outputStatus.GetNumAvailableOutputFrames();
+	unsigned int numCircBufferFrames = CIRCULAR_BUFFER_SIZE - mAVCircularBuffer.GetCircBufferCount();
+
+	std::printf("%s: CardBufferFree = %d; CircBufferFree = %d\n", location, numCardBufferFrames, numCircBufferFrames);
+	//std::cout << location << ": CardBufferFree = " << numCardBufferFrames << "; CircBufferFree = " << numCircBufferFrames << std::endl;
+}
+#endif
 
 void NTV2Player::GetCallback (void ** const pInstance, NTV2PlayerCallback ** const callback)
 {
