@@ -34,6 +34,8 @@ limitations under the License.
 #include "ajaanc/includes/ancillarydata_hdr_hdr10.h"
 #include "ajaanc/includes/ancillarydata_hdr_hlg.h"
 
+//#define DEBUG_OUTPUT
+
 /**
 	@brief	I am an object that can play out a test pattern (with timecode) to an output of an AJA device
 			with or without audio tone in real time. I make use of the AJACircularBuffer, which simplifies
@@ -210,6 +212,12 @@ class NTV2Player
 		**/
 		virtual void			DisableRP188Bypass (void);
 
+#ifdef DEBUG_OUTPUT
+		void					LogBufferState(const char* location);
+#define LOG_BUFFER_STATE(LOCATION) LogBufferState(LOCATION)
+#else
+#define LOG_BUFFER_STATE(LOCATION)
+#endif
 
 	//	Protected Class Methods
 	protected:
