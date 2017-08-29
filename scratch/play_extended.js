@@ -26,6 +26,7 @@ var playback = new ajatation.Playback(0, ajatation.bmdModeHD1080i50, ajatation.b
 var rootFolder = "E:/media/EBU_test_sets/filexchange.ebu.ch/EBU test sets - Creative Commons (BY-NC-ND)/HDTV test sequences/1080i25/";
 
 var material = {
+  queen: "C:/Users/zztop/Videos/queen2",
   sheep: "F:/media/streampunk/sheep",
   tree: "F:/media/streampunk/tree",
   view: "F:/media/streampunk/view"

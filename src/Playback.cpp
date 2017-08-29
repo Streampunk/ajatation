@@ -33,15 +33,6 @@
 
 using namespace std;
 
-//	Globals
-static bool		gGlobalQuit(false);	//	Set this "true" to exit gracefully
-
-static void SignalHandler(int inSignal)
-{
-	(void)inSignal;
-	gGlobalQuit = true;
-}
-
 namespace streampunk {
 
 inline Nan::Persistent<v8::Function> &Playback::constructor() {
@@ -162,8 +153,6 @@ bool Playback::initNtv2Player()
 
 	player_.reset( new NTV2Player(deviceSpec, (noAudio ? false : true), channel, pixelFormat, outputDest, videoFormat, false, false, doMultiChannel ? true : false, sendType));
 
-	::signal(SIGINT, SignalHandler);
-
 	//	Initialize the player...
 	status = player_->Init();
 	if (AJA_SUCCESS(status))
@@ -273,7 +262,6 @@ NTV2FrameBufferFormat Playback::getPixelFormat(uint32_t genericPixelFormat)
 {
 	NTV2FrameBufferFormat pixelFormat(defaultPixelFormat_);
 	NTV2FrameBufferFormat convertedFormat = PIXEL_FORMAT_MAP.ToB(static_cast<GenericPixelFormat>(genericPixelFormat));
-
 
 	if (convertedFormat != NTV2_FBF_INVALID)
 	{

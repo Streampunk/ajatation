@@ -1,0 +1,2 @@
+{ "format": "video", "encodingName": "raw", "width": 1920, "height": 1080, "depth": 10, "packing": "v210", "sampling": "YCbCr-4:2:2", "clockRate": 90000, "interlace": true, "colorimetry": "BT709-2", "grainDuration": "1/25" }
+

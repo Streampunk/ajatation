@@ -15,11 +15,11 @@
 
 var H = require('highland');
 var fs = require('fs');
-var mac = require('../index.js');
+var aja = require('../index.js');
 
 var writeFile = H.wrapCallback(fs.writeFile);
 
-var recorder = new mac.Capture(0, mac.bmdModeHD1080i50, mac.bmdFormat10BitYUV);
+var recorder = new aja.Capture(0, aja.bmdModeHD1080i50, aja.bmdFormat10BitYUV);
 
 var count = 0;
 const zeros = '00000000';

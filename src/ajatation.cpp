@@ -30,7 +30,7 @@
 #include <comdef.h>
 #endif
 
-//#include "Capture.h"
+#include "Capture.h"
 #include "Playback.h"
 
 using namespace v8;
@@ -115,6 +115,7 @@ NAN_MODULE_INIT(Init) {
   Nan::Export(target, "getFirstDevice", GetFirstDevice);
   //streampunk::Capture::Init(target);
   streampunk::Playback::Init(target);
+  streampunk::Capture::Init(target);
 }
 
 NODE_MODULE(ajatation, Init);
