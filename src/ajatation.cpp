@@ -26,7 +26,7 @@
 #ifdef WIN32
 #include <tchar.h>
 #include <conio.h>
-#include <objbase.h>		// Necessary for COM
+#include <objbase.h>        // Necessary for COM
 #include <comdef.h>
 #endif
 
@@ -40,7 +40,7 @@ NAN_METHOD(deviceSdkVersion) {
   //TODO Implement properly
 
   char sdkVer [80];
-  int	dlVerMajor, dlVerMinor, dlVerPoint;
+  int    dlVerMajor, dlVerMinor, dlVerPoint;
 
   dlVerMajor = 0;
   dlVerMinor = 0;
@@ -53,7 +53,7 @@ NAN_METHOD(deviceSdkVersion) {
 
 NAN_METHOD(GetFirstDevice) {
   //IDeckLinkIterator* deckLinkIterator;
-  //HRESULT	result;
+  //HRESULT    result;
   //IDeckLinkAPIInformation *deckLinkAPIInformation;
   //IDeckLink* deckLink;
   //#ifdef WIN32

@@ -60,7 +60,7 @@ typedef enum _GenericDisplayMode
     bmdMode4kDCI24 = 0x34643234,
     bmdMode4kDCI25 = 0x34643235,
     bmdModeUnknown = 0x69756e6b
-} 	GenericDisplayMode;
+}     GenericDisplayMode;
 
 
 // 'Generic' pixel formats. These are copied verbatim from the BMDPixelFormat type defined in DeckLinkAPI.h within the Decklink SDK;
@@ -79,7 +79,7 @@ typedef enum _GenericPixelFormat
     bmdFormat10BitRGBX = 0x52313062,
     bmdFormatH265 = 0x68657631,
     bmdFormatDNxHR = 0x41566468
-} 	GenericPixelFormat;
+}     GenericPixelFormat;
 
 typedef TypeMap<GenericDisplayMode, NTV2VideoFormat> DisplayModeMap;
 

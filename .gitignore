@@ -38,3 +38,4 @@ backups
 # Visual Studio temp files
 *.VC.db
 *.vcxproj.user
+*.opensdf

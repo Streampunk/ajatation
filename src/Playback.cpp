@@ -91,9 +91,9 @@ NAN_METHOD(Playback::New) {
 }
 
 NAN_METHOD(Playback::DeviceInit) {
-	Playback* obj = ObjectWrap::Unwrap<Playback>(info.Holder());
+    Playback* obj = ObjectWrap::Unwrap<Playback>(info.Holder());
 
-	if (obj->initNtv2Player())
+    if (obj->initNtv2Player())
         info.GetReturnValue().Set(Nan::New("made it!").ToLocalChecked());
     else
         info.GetReturnValue().Set(Nan::New("sad :-(").ToLocalChecked());
@@ -138,137 +138,137 @@ NAN_METHOD(Playback::ScheduleFrame) {
 
 bool Playback::initNtv2Player()
 {
-	bool  success(false);
-	AJAStatus		status(AJA_STATUS_SUCCESS);
-	const string deviceSpec("0");
-	const NTV2VideoFormat	videoFormat(getVideoFormat(displayMode_));
-	const NTV2FrameBufferFormat	pixelFormat(getPixelFormat(pixelFormat_));
+    bool  success(false);
+    AJAStatus        status(AJA_STATUS_SUCCESS);
+    const string deviceSpec("0");
+    const NTV2VideoFormat    videoFormat(getVideoFormat(displayMode_));
+    const NTV2FrameBufferFormat    pixelFormat(getPixelFormat(pixelFormat_));
 
-	uint32_t		channelNumber(2);					//	Number of the channel to use
-	int				noAudio(0);					//	Disable audio tone?
-	const NTV2Channel channel(::GetNTV2ChannelForIndex(channelNumber - 1));
-	const NTV2OutputDestination	outputDest(::NTV2ChannelToOutputDestination(channel));
-	int				doMultiChannel(0);					//	Enable multi-format?
-	AJAAncillaryDataType sendType = AJAAncillaryDataType_Unknown;
+    uint32_t        channelNumber(2);                    //    Number of the channel to use
+    int                noAudio(0);                    //    Disable audio tone?
+    const NTV2Channel channel(::GetNTV2ChannelForIndex(channelNumber - 1));
+    const NTV2OutputDestination    outputDest(::NTV2ChannelToOutputDestination(channel));
+    int                doMultiChannel(0);                    //    Enable multi-format?
+    AJAAncillaryDataType sendType = AJAAncillaryDataType_Unknown;
 
-	player_.reset( new NTV2Player(&DEFAULT_INIT_PARAMS, deviceSpec, (noAudio ? false : true), channel, pixelFormat, outputDest, videoFormat, false, false, doMultiChannel ? true : false, sendType));
+    player_.reset( new NTV2Player(&DEFAULT_INIT_PARAMS, deviceSpec, (noAudio ? false : true), channel, pixelFormat, outputDest, videoFormat, false, false, doMultiChannel ? true : false, sendType));
 
-	//	Initialize the player...
-	status = player_->Init();
-	if (AJA_SUCCESS(status))
-	{
-		player_->SetScheduledFrameCallback(this, Playback::_scheduledFrameCompleted);
+    //    Initialize the player...
+    status = player_->Init();
+    if (AJA_SUCCESS(status))
+    {
+        player_->SetScheduledFrameCallback(this, Playback::_scheduledFrameCompleted);
 
-		success = true;
-	}	//	if player Init succeeded
-	else
-	{
-		cerr << "Player initialization failed with status " << status << endl;
-		player_.reset();
-	}
+        success = true;
+    }    //    if player Init succeeded
+    else
+    {
+        cerr << "Player initialization failed with status " << status << endl;
+        player_.reset();
+    }
 
-	return success;
+    return success;
 }
 
 
 bool Playback::shutdownNtv2Player()
 {
-	bool success = false;
+    bool success = false;
 
-	if (player_)
-	{
-		player_->Quit();
-		player_.reset();
+    if (player_)
+    {
+        player_->Quit();
+        player_.reset();
 
-		success = true;
-	}
+        success = true;
+    }
 
-	return success;
+    return success;
 }
 
 
 bool Playback::play()
 {
-	bool success = false;
+    bool success = false;
 
-	if (player_)
-	{
-		player_->Run();
+    if (player_)
+    {
+        player_->Run();
 
-		success = true;
-	}
+        success = true;
+    }
 
-	return success;
+    return success;
 }
 
 
 bool Playback::stop()
 {
-	bool success = false;
+    bool success = false;
 
-	if (player_)
-	{
-		player_->Quit();
+    if (player_)
+    {
+        player_->Quit();
 
-		success = true;
-	}
+        success = true;
+    }
 
-	return success;
+    return success;
 }
 
 
 bool Playback::scheduleFrame(const char* data, const size_t length)
 {
-	bool success = false;
+    bool success = false;
 
-	if (player_)
-	{
-		success = player_->ScheduleFrame(data, length, nullptr, 0);
-	}
+    if (player_)
+    {
+        success = player_->ScheduleFrame(data, length, nullptr, 0);
+    }
 
-	return success;
+    return success;
 }
 
 
 void Playback::scheduledFrameCompleted()
 {
-	uv_async_send(async);
+    uv_async_send(async);
 }
 
 
 void Playback::_scheduledFrameCompleted(void* context)
 {
-	Playback* localThis = reinterpret_cast<Playback*>(context);
+    Playback* localThis = reinterpret_cast<Playback*>(context);
 
-	localThis->scheduledFrameCompleted();
+    localThis->scheduledFrameCompleted();
 }
 
 
 NTV2VideoFormat Playback::getVideoFormat(uint32_t genericDisplayMode)
 {
-	NTV2VideoFormat videoFormat(defaultVideoFormat_);
-	NTV2VideoFormat convertedFormat = DISPLAY_MODE_MAP.ToB(static_cast<GenericDisplayMode>(genericDisplayMode));
+    NTV2VideoFormat videoFormat(defaultVideoFormat_);
+    NTV2VideoFormat convertedFormat = DISPLAY_MODE_MAP.ToB(static_cast<GenericDisplayMode>(genericDisplayMode));
 
-	if (convertedFormat != NTV2_FORMAT_UNKNOWN)
-	{
-		videoFormat = convertedFormat;
-	}
+    if (convertedFormat != NTV2_FORMAT_UNKNOWN)
+    {
+        videoFormat = convertedFormat;
+    }
 
-	return videoFormat;
+    return videoFormat;
 }
 
 
 NTV2FrameBufferFormat Playback::getPixelFormat(uint32_t genericPixelFormat)
 {
-	NTV2FrameBufferFormat pixelFormat(defaultPixelFormat_);
-	NTV2FrameBufferFormat convertedFormat = PIXEL_FORMAT_MAP.ToB(static_cast<GenericPixelFormat>(genericPixelFormat));
+    NTV2FrameBufferFormat pixelFormat(defaultPixelFormat_);
+    NTV2FrameBufferFormat convertedFormat = PIXEL_FORMAT_MAP.ToB(static_cast<GenericPixelFormat>(genericPixelFormat));
 
-	if (convertedFormat != NTV2_FBF_INVALID)
-	{
-		pixelFormat = convertedFormat;
-	}
+    if (convertedFormat != NTV2_FBF_INVALID)
+    {
+        pixelFormat = convertedFormat;
+    }
 
-	return pixelFormat;
+    return pixelFormat;
 }
 
 

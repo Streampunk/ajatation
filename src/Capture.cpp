@@ -189,7 +189,7 @@ bool Capture::initNtv2Capture()
     const NTV2FrameBufferFormat    pixelFormat(getPixelFormat(genericPixelFormat_));
     bool multiFormat(false); // TODO: determine significance of this
     bool captureAncilliaryData(false); 
-    AJAStatus		status(AJA_STATUS_SUCCESS);
+    AJAStatus        status(AJA_STATUS_SUCCESS);
 
     cout << "Capture initializing with pixelFormat " << pixelFormat << endl;
 

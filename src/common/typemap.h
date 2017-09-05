@@ -27,13 +27,13 @@ public:
     typedef A A_type;
     typedef B B_type;
 
-	struct Entry
-	{
-		A a_;
-		B b_;
+    struct Entry
+    {
+        A a_;
+        B b_;
 
         Entry(A a, B b) : a_(a), b_(b) {}
-	};
+    };
 
     template<int N> TypeMap(Entry (&entries) [N], A defaultA, B defaultB)
         : defaultA_(defaultA), defaultB_(defaultB)

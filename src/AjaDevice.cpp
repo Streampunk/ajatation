@@ -233,10 +233,10 @@ AJAStatus AjaDevice::Initialize(const InitParams*  initParams)
             return AJA_STATUS_BUSY;
         }
 
-        tempDevice->GetEveryFrameServices(&oldMode);	//	Save the current service level
+        tempDevice->GetEveryFrameServices(&oldMode);    //    Save the current service level
     }
 
-    tempDevice->SetEveryFrameServices(NTV2_OEM_TASKS);			//	Set OEM service level
+    tempDevice->SetEveryFrameServices(NTV2_OEM_TASKS);            //    Set OEM service level
 
     // Transfer the device pointer to its permanent location
     device_.reset(tempDevice.release());
@@ -270,8 +270,8 @@ void AjaDevice::ReleaseDevice()
 {
     if (!initParams_->doMultiChannel)
     {
-        device_->SetEveryFrameServices(mode_);    //	Restore the previously saved service level
-        device_->ReleaseStreamForApplication(initParams_->appSignature, static_cast <uint32_t> (AJAProcess::GetPid()));	//	Release the device
+        device_->SetEveryFrameServices(mode_);    //    Restore the previously saved service level
+        device_->ReleaseStreamForApplication(initParams_->appSignature, static_cast <uint32_t> (AJAProcess::GetPid()));    //    Release the device
     }
 }
 

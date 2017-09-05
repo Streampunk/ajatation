@@ -60,7 +60,7 @@ private:
 
   // init() must be called after the constructor.
   // if init() fails, call the destructor
-  //bool			init();
+  //bool            init();
   static NAN_METHOD(DeviceInit);
 
   // start the capture operation. returns when the operation has completed
@@ -90,8 +90,8 @@ public:
   static NAN_MODULE_INIT(Init);
 
   // IDeckLinkInputCallback
-  //virtual HRESULT	VideoInputFormatChanged (BMDVideoInputFormatChangedEvents notificationEvents, IDeckLinkDisplayMode* newDisplayMode, BMDDetectedVideoInputFormatFlags detectedSignalFlags);
-  //virtual HRESULT	VideoInputFrameArrived (IDeckLinkVideoInputFrame* arrivedFrame, IDeckLinkAudioInputPacket*);
+  //virtual HRESULT    VideoInputFormatChanged (BMDVideoInputFormatChangedEvents notificationEvents, IDeckLinkDisplayMode* newDisplayMode, BMDDetectedVideoInputFormatFlags detectedSignalFlags);
+  //virtual HRESULT    VideoInputFrameArrived (IDeckLinkVideoInputFrame* arrivedFrame, IDeckLinkAudioInputPacket*);
   virtual void TestUV();
 
   void frameArrived();
