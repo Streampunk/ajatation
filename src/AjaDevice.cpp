@@ -25,6 +25,7 @@ using namespace std;
 namespace streampunk {
 
 AjaDevice::CNTV2Card_Factory AjaDevice::NTV2Card_Factory = AjaDevice::DefaultCNTV2CardFactory;
+const string AjaDevice::DEFAULT_DEVICE_SPECIFIER = "0";
 
 const AjaDevice::InitParams DEFAULT_INIT_PARAMS = {
     false,                          // Multi-channel
@@ -234,6 +235,7 @@ AJAStatus AjaDevice::Initialize(const InitParams*  initParams)
         }
 
         tempDevice->GetEveryFrameServices(&oldMode);    //    Save the current service level
+        mode_ = oldMode;
     }
 
     tempDevice->SetEveryFrameServices(NTV2_OEM_TASKS);            //    Set OEM service level
@@ -241,7 +243,6 @@ AJAStatus AjaDevice::Initialize(const InitParams*  initParams)
     // Transfer the device pointer to its permanent location
     device_.reset(tempDevice.release());
     initParams_ = initParams;
-    mode_ = oldMode;
 
     deviceId_ = device_->GetDeviceID();
 

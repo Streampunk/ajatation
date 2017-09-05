@@ -27,6 +27,14 @@ namespace streampunk {
 // Class to manage the reservation and release of AJA devices between multiple nodes
 class AjaDevice 
 {
+// Constants
+//
+public:
+
+    static const string DEFAULT_DEVICE_SPECIFIER;
+    static const uint32_t DEFAULT_CAPTURE_CHANNEL = 1;
+    static const uint32_t DEFAULT_PLAYBACK_CHANNEL = 3;
+
 // Typedefs and nested classes
 //
 public:

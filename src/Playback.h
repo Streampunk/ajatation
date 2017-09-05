@@ -76,6 +76,7 @@ private:
     NTV2VideoFormat getVideoFormat(uint32_t genericDisplayMode);
     NTV2FrameBufferFormat getPixelFormat(uint32_t genericPixelFormat);
 
+    uint32_t deviceIndex_;
     uint32_t displayMode_;
     uint32_t pixelFormat_;
 

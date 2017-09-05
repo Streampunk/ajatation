@@ -42,3 +42,5 @@ test/TestFiles
 *.VC.db
 *.vcxproj.user
 *.opensdf
+*.vspx
+*.psess

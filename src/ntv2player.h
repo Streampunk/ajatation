@@ -221,6 +221,11 @@ class NTV2Player
         **/
         virtual void            DisableRP188Bypass (void);
 
+        /**
+            @brief    Try to keep the input buffer reasonably stocked by delaying the output if the buffer is badly depleted
+        **/
+        virtual void            SmoothBuffer(ULWord cardBufferFreeSlots);
+
 #ifdef DEBUG_OUTPUT
         void                    LogBufferState(const char* location);
 #define LOG_BUFFER_STATE(LOCATION) LogBufferState(LOCATION)
@@ -256,49 +261,51 @@ class NTV2Player
         static ULWord            GetRP188RegisterForOutput (const NTV2OutputDestination inOutputSource);
 
 
+
     //    Private Member Data
     private:
         typedef AJACircularBuffer <AVDataBuffer *>        MyCirculateBuffer;
 
-        AJAThread *                    mConsumerThread;            ///< @brief    My playout (consumer) thread object
-        AJAThread *                    mProducerThread;            ///< @brief    My generator (producer) thread object
-        AJALock *                    mLock;                        ///< @brief    Global mutex to avoid device frame buffer allocation race condition
+        AJAThread *                  mConsumerThread;                       ///< @brief    My playout (consumer) thread object
+        AJAThread *                  mProducerThread;                       ///< @brief    My generator (producer) thread object
+        AJALock *                    mLock;                                 ///< @brief    Global mutex to avoid device frame buffer allocation race condition
 
-        uint32_t                    mCurrentFrame;                ///< @brief    My current frame number (used to generate timecode)
-        ULWord                        mCurrentSample;                ///< @brief    My current audio sample (maintains audio tone generator state)
-        double                        mToneFrequency;                ///< @brief    My current audio tone frequency [Hz]
+        uint32_t                     mCurrentFrame;                         ///< @brief    My current frame number (used to generate timecode)
+        ULWord                       mCurrentSample;                        ///< @brief    My current audio sample (maintains audio tone generator state)
+        double                       mToneFrequency;                        ///< @brief    My current audio tone frequency [Hz]
 
-        const std::string            mDeviceSpecifier;            ///< @brief    Specifies the device I should use
-        NTV2DeviceID                mDeviceID;                    ///< @brief    My device (model) identifier
-        NTV2Channel                    mOutputChannel;                ///< @brief    The channel I'm using
-        const NTV2OutputDestination    mOutputDestination;            ///< @brief    The output I'm using
-        NTV2VideoFormat                mVideoFormat;                ///< @brief    My video format
-        NTV2FrameBufferFormat        mPixelFormat;                ///< @brief    My pixel format
-        NTV2EveryFrameTaskMode        mSavedTaskMode;                ///< @brief    Used to restore the prior task mode
-        NTV2AudioSystem                mAudioSystem;                ///< @brief    The audio system I'm using
-        NTV2VANCMode                mVancMode;                    ///< @brief    VANC mode
-        const bool                    mWithAudio;                    ///< @brief    Playout audio?
-        bool                        mEnableVanc;                ///< @brief    Enable VANC?
-        bool                        mGlobalQuit;                ///< @brief    Set "true" to gracefully stop
-        bool                        mDoLevelConversion;            ///< @brief    Demonstrates a level A to level B conversion
-        AJATimeCodeBurn                mTCBurner;                    ///< @brief    My timecode burner
-        uint32_t                    mVideoBufferSize;            ///< @brief    My video buffer size, in bytes
-        uint32_t                    mAudioBufferSize;            ///< @brief    My audio buffer size, in bytes
+        const std::string            mDeviceSpecifier;                      ///< @brief    Specifies the device I should use
+        NTV2DeviceID                 mDeviceID;                             ///< @brief    My device (model) identifier
+        NTV2Channel                  mOutputChannel;                        ///< @brief    The channel I'm using
+        const NTV2OutputDestination  mOutputDestination;                    ///< @brief    The output I'm using
+        NTV2VideoFormat              mVideoFormat;                          ///< @brief    My video format
+        NTV2FrameBufferFormat        mPixelFormat;                          ///< @brief    My pixel format
+        NTV2EveryFrameTaskMode       mSavedTaskMode;                        ///< @brief    Used to restore the prior task mode
+        NTV2AudioSystem              mAudioSystem;                          ///< @brief    The audio system I'm using
+        NTV2VANCMode                 mVancMode;                             ///< @brief    VANC mode
+        const bool                   mWithAudio;                            ///< @brief    Playout audio?
+        bool                         mEnableVanc;                           ///< @brief    Enable VANC?
+        bool                         mGlobalQuit;                           ///< @brief    Set "true" to gracefully stop
+        bool                         mDoLevelConversion;                    ///< @brief    Demonstrates a level A to level B conversion
+        AJATimeCodeBurn              mTCBurner;                             ///< @brief    My timecode burner
+        uint32_t                     mVideoBufferSize;                      ///< @brief    My video buffer size, in bytes
+        uint32_t                     mAudioBufferSize;                      ///< @brief    My audio buffer size, in bytes
 
-        uint8_t **                    mTestPatternVideoBuffers;    ///< @brief    My test pattern buffers
-        int32_t                        mNumTestPatterns;            ///< @brief    Number of test patterns to cycle through
+        uint8_t **                   mTestPatternVideoBuffers;              ///< @brief    My test pattern buffers
+        int32_t                      mNumTestPatterns;                      ///< @brief    Number of test patterns to cycle through
 
-        AVDataBuffer                mAVHostBuffer [CIRCULAR_BUFFER_SIZE];    ///< @brief    My host buffers
-        MyCirculateBuffer            mAVCircularBuffer;                        ///< @brief    My ring buffer
+        AVDataBuffer                 mAVHostBuffer [CIRCULAR_BUFFER_SIZE];  ///< @brief    My host buffers
+        MyCirculateBuffer            mAVCircularBuffer;                     ///< @brief    My ring buffer
 
-        void *                        mCallbackUserData;            ///< @brief    User data to be passed to the callback function
-        NTV2PlayerCallback *        mCallback;                    ///< @brief    Address of callback function
-        AJAAncillaryDataType        mAncType;
+        void *                       mCallbackUserData;                     ///< @brief    User data to be passed to the callback function
+        NTV2PlayerCallback *         mCallback;                             ///< @brief    Address of callback function
+        AJAAncillaryDataType         mAncType;
 
-        void *                        mScheduleFrameCallbackContext;
-        ScheduledFrameCallback *    mScheduleFrameCallback;
-        AjaDevice::Ref              mDeviceRef;
+        void *                       mScheduleFrameCallbackContext;
+        ScheduledFrameCallback *     mScheduleFrameCallback;
+        AjaDevice::Ref               mDeviceRef;
         const AjaDevice::InitParams* mInitParams;
+        bool                         mEnableTestPatternFill;
 };    //    NTV2Player
 
 #endif    //    _NTV2PLAYER_H
