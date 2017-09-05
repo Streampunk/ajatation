@@ -144,14 +144,14 @@ bool Playback::initNtv2Player()
 	const NTV2VideoFormat	videoFormat(getVideoFormat(displayMode_));
 	const NTV2FrameBufferFormat	pixelFormat(getPixelFormat(pixelFormat_));
 
-	uint32_t		channelNumber(1);					//	Number of the channel to use
+	uint32_t		channelNumber(2);					//	Number of the channel to use
 	int				noAudio(0);					//	Disable audio tone?
 	const NTV2Channel channel(::GetNTV2ChannelForIndex(channelNumber - 1));
 	const NTV2OutputDestination	outputDest(::NTV2ChannelToOutputDestination(channel));
 	int				doMultiChannel(0);					//	Enable multi-format?
 	AJAAncillaryDataType sendType = AJAAncillaryDataType_Unknown;
 
-	player_.reset( new NTV2Player(deviceSpec, (noAudio ? false : true), channel, pixelFormat, outputDest, videoFormat, false, false, doMultiChannel ? true : false, sendType));
+	player_.reset( new NTV2Player(&DEFAULT_INIT_PARAMS, deviceSpec, (noAudio ? false : true), channel, pixelFormat, outputDest, videoFormat, false, false, doMultiChannel ? true : false, sendType));
 
 	//	Initialize the player...
 	status = player_->Init();

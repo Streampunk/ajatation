@@ -33,6 +33,7 @@ limitations under the License.
 #include "ajaanc/includes/ancillarydata_hdr_sdr.h"
 #include "ajaanc/includes/ancillarydata_hdr_hdr10.h"
 #include "ajaanc/includes/ancillarydata_hdr_hlg.h"
+#include "AjaDevice.h"
 
 //#define DEBUG_OUTPUT
 
@@ -43,6 +44,8 @@ limitations under the License.
 			frames, and a "consumer" thread (i.e., the "play" thread) sends those frames to the AJA device.
 			I demonstrate how to embed timecode into an SDI output signal using AutoCirculate during playout.
 **/
+
+using namespace streampunk;
 
 class NTV2Player
 {
@@ -70,16 +73,17 @@ class NTV2Player
 			@param[in]	inLevelConversion	If true, demonstrate level A to B conversion; otherwise don't. Defaults to false.
 			@param[in]	inDoMultiFormat		If true, use multi-format mode; otherwise use uniformat mode. Defaults to false (uniformat mode).
 		**/
-								NTV2Player (const std::string &			inDeviceSpecifier	= "0",
-											const bool					inWithAudio			= true,
-											const NTV2Channel			inChannel			= NTV2_CHANNEL1,
-											const NTV2FrameBufferFormat	inPixelFormat		= NTV2_FBF_8BIT_YCBCR,
-											const NTV2OutputDestination	inOutputDestination	= NTV2_OUTPUTDESTINATION_SDI2,
-											const NTV2VideoFormat		inVideoFormat		= NTV2_FORMAT_1080i_5994,
-											const bool					inWithVanc			= false,
-											const bool					inLevelConversion	= false,
-											const bool					inDoMultiFormat		= false,
-											const AJAAncillaryDataType	inSendHDRType		= AJAAncillaryDataType_Unknown);
+								NTV2Player (const AjaDevice::InitParams* initParams,
+                                            const std::string &			 inDeviceSpecifier	= "0",
+											const bool					 inWithAudio			= true,
+											const NTV2Channel			 inChannel			= NTV2_CHANNEL1,
+											const NTV2FrameBufferFormat	 inPixelFormat		= NTV2_FBF_8BIT_YCBCR,
+											const NTV2OutputDestination	 inOutputDestination	= NTV2_OUTPUTDESTINATION_SDI2,
+											const NTV2VideoFormat		 inVideoFormat		= NTV2_FORMAT_1080i_5994,
+											const bool					 inWithVanc			= false,
+											const bool					 inLevelConversion	= false,
+											const bool					 inDoMultiFormat		= false,
+											const AJAAncillaryDataType	 inSendHDRType		= AJAAncillaryDataType_Unknown);
 
 		virtual					~NTV2Player (void);
 
@@ -148,6 +152,11 @@ class NTV2Player
 			@brief	Sets up everything I need to play video.
 		**/
 		virtual AJAStatus		SetUpVideo (void);
+
+		/**
+			@brief	Set up a clock reference if there are no inputs.
+		**/
+		virtual void    		SetReferenceIfNone (void);
 
 		/**
 			@brief	Sets up everything I need to play audio.
@@ -260,7 +269,6 @@ class NTV2Player
 		double						mToneFrequency;				///< @brief	My current audio tone frequency [Hz]
 
 		const std::string			mDeviceSpecifier;			///< @brief	Specifies the device I should use
-		CNTV2Card					mDevice;					///< @brief	My CNTV2Card instance
 		NTV2DeviceID				mDeviceID;					///< @brief	My device (model) identifier
 		NTV2Channel					mOutputChannel;				///< @brief	The channel I'm using
 		const NTV2OutputDestination	mOutputDestination;			///< @brief	The output I'm using
@@ -273,7 +281,6 @@ class NTV2Player
 		bool						mEnableVanc;				///< @brief	Enable VANC?
 		bool						mGlobalQuit;				///< @brief	Set "true" to gracefully stop
 		bool						mDoLevelConversion;			///< @brief	Demonstrates a level A to level B conversion
-		bool						mDoMultiChannel;			///< @brief	Demonstrates how to configure the board for multi-format
 		AJATimeCodeBurn				mTCBurner;					///< @brief	My timecode burner
 		uint32_t					mVideoBufferSize;			///< @brief	My video buffer size, in bytes
 		uint32_t					mAudioBufferSize;			///< @brief	My audio buffer size, in bytes
@@ -290,6 +297,8 @@ class NTV2Player
 
 		void *						mScheduleFrameCallbackContext;
 		ScheduledFrameCallback *	mScheduleFrameCallback;
+        AjaDevice::Ref              mDeviceRef;
+        const AjaDevice::InitParams* mInitParams;
 };	//	NTV2Player
 
 #endif	//	_NTV2PLAYER_H

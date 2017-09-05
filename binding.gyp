@@ -25,12 +25,14 @@
       ['OS=="win"', {
         "sources" : [ 
 			"aja/ntv2sdkwin_13.0.0.18/ajaapps/crossplatform/demoapps/ntv2democommon.cpp", 
+			"src/utils.cpp", 
 			"src/ajatation.cpp", 
 			"src/ntv2player.cpp", 
 			"src/ntv2capture.cpp", 
 			"src/Playback.cpp",
 			"src/Capture.cpp",
-            "src/gen2ajaTypeMaps.cpp"
+            "src/gen2ajaTypeMaps.cpp",
+            "src/AjaDevice.cpp"
 		],
         "configurations": {
           "Release": {

@@ -16,11 +16,13 @@
 #include "ajabase/common/videotypes.h"
 #include "ajabase/common/circularbuffer.h"
 #include "ajabase/system/thread.h"
-
+#include "AjaDevice.h"
 
 /**
 	@brief	Instances of me capture frames in real time from a video signal provided to an input of an AJA device.
 **/
+
+using namespace streampunk;
 
 class NTV2Capture
 {
@@ -44,13 +46,14 @@ class NTV2Capture
 			@param[in]	inWithAnc			If true, captures ancillary data using the new AutoCirculate APIs (if the device supports it).
 											Defaults to false.
 		**/
-		NTV2Capture (	const std::string			inDeviceSpecifier	= "0",
-						const bool					inWithAudio			= true,
-						const NTV2Channel			inChannel			= NTV2_CHANNEL1,
-						const NTV2FrameBufferFormat	inPixelFormat		= NTV2_FBF_8BIT_YCBCR,
-						const bool					inDoLvlABConversion	= false,
-						const bool					inMultiFormat		= false,
-						const bool					inWithAnc			= false);
+		NTV2Capture (   const AjaDevice::InitParams* initParams,
+                        const std::string			 inDeviceSpecifier	= "0",
+						const bool					 inWithAudio			= true,
+						const NTV2Channel			 inChannel			= NTV2_CHANNEL1,
+						const NTV2FrameBufferFormat	 inPixelFormat		= NTV2_FBF_8BIT_YCBCR,
+						const bool					 inDoLvlABConversion	= false,
+						const bool					 inMultiFormat		= false,
+						const bool					 inWithAnc			= false);
 
 		virtual						~NTV2Capture ();
 
@@ -151,7 +154,6 @@ class NTV2Capture
 
 		AJAThread *					mProducerThread;		///< @brief	My producer thread object -- does the frame capturing
 		AJALock *					mLock;					///< @brief	Global mutex to avoid device frame buffer allocation race condition
-		CNTV2Card					mDevice;				///< @brief	My CNTV2Card instance. This is what I use to talk to the device.
 		NTV2DeviceID				mDeviceID;				///< @brief	My device identifier
 		const std::string			mDeviceSpecifier;		///< @brief	The device specifier string
 		const NTV2Channel			mInputChannel;			///< @brief	My input channel
@@ -162,7 +164,6 @@ class NTV2Capture
 		NTV2EveryFrameTaskMode		mSavedTaskMode;			///< @brief	Used to restore prior every-frame task mode
 		NTV2AudioSystem				mAudioSystem;			///< @brief	The audio system I'm using (if any)
 		bool						mDoLevelConversion;		///< @brief	Demonstrates a level A to level B conversion
-		bool						mDoMultiFormat;			///< @brief	Demonstrates how to configure the board for multi-format
 		bool						mGlobalQuit;			///< @brief	Set "true" to gracefully stop
 		bool						mWithAnc;				///< @brief	Capture custom anc data?
 		uint32_t					mVideoBufferSize;		///< @brief	My video buffer size, in bytes
@@ -173,6 +174,8 @@ class NTV2Capture
         void *						mFrameArrivedCallbackContext;
         FrameArrivedCallback *	    mFrameArrivedCallback;
         bool                        mFrameLocked;
+        AjaDevice::Ref              mDeviceRef;
+        const AjaDevice::InitParams* mInitParams;
 };	//	NTV2Capture
 
 #endif	//	_NTV2CAPTURE_H

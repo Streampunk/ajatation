@@ -46,7 +46,7 @@ NAN_METHOD(deviceSdkVersion) {
   dlVerMinor = 0;
   dlVerPoint = 0;
 
-  sprintf(sdkVer, "TODO: SDK API version: %d.%d.%d", dlVerMajor, dlVerMinor, dlVerPoint);
+  sprintf_s(sdkVer, "TODO: SDK API version: %d.%d.%d", dlVerMajor, dlVerMinor, dlVerPoint);
 
   info.GetReturnValue().Set(Nan::New(sdkVer).ToLocalChecked());
 }

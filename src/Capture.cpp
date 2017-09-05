@@ -191,8 +191,11 @@ bool Capture::initNtv2Capture()
     bool captureAncilliaryData(false); 
     AJAStatus		status(AJA_STATUS_SUCCESS);
 
+    cout << "Capture initializing with pixelFormat " << pixelFormat << endl;
+
 //    Instantiate the NTV2Capture object, using the specified AJA device...
-    capture_.reset(new NTV2Capture(deviceSpec, true,                             //    With audio?
+    capture_.reset(new NTV2Capture(&DEFAULT_INIT_PARAMS,
+        deviceSpec, true,                             //    With audio?
         ::GetNTV2ChannelForIndex(channelNumber - 1),    //    Channel
         pixelFormat,                                    //    Pixel format
         false,                                          //    Level A/B conversion?

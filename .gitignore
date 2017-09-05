@@ -34,3 +34,7 @@ aja
 
 # Initial backups. This directory should go once everything is checked into git
 backups
+
+# Visual Studio temp files
+*.VC.db
+*.vcxproj.user
