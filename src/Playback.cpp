@@ -41,7 +41,9 @@ inline Nan::Persistent<v8::Function> &Playback::constructor() {
 }
 
 Playback::Playback(uint32_t deviceIndex, uint32_t displayMode, uint32_t pixelFormat)
-: displayMode_(displayMode), pixelFormat_(pixelFormat)
+:   deviceIndex_(deviceIndex), 
+    displayMode_(displayMode), 
+    pixelFormat_(pixelFormat)
 {
   async = new uv_async_t;
   uv_async_init(uv_default_loop(), async, FrameCallback);
@@ -140,18 +142,39 @@ bool Playback::initNtv2Player()
 {
     bool  success(false);
     AJAStatus        status(AJA_STATUS_SUCCESS);
-    const string deviceSpec("0");
-    const NTV2VideoFormat    videoFormat(getVideoFormat(displayMode_));
-    const NTV2FrameBufferFormat    pixelFormat(getPixelFormat(pixelFormat_));
 
-    uint32_t        channelNumber(2);                    //    Number of the channel to use
-    int                noAudio(0);                    //    Disable audio tone?
-    const NTV2Channel channel(::GetNTV2ChannelForIndex(channelNumber - 1));
-    const NTV2OutputDestination    outputDest(::NTV2ChannelToOutputDestination(channel));
-    int                doMultiChannel(0);                    //    Enable multi-format?
-    AJAAncillaryDataType sendType = AJAAncillaryDataType_Unknown;
+    // Try to get the deviceId from the init params
+    string deviceSpec(AjaDevice::DEFAULT_DEVICE_SPECIFIER);
+    char buffer[10];
+    
+    if(_itoa_s(deviceIndex_, buffer, 10) == 0)
+    {
+        deviceSpec = buffer;
+    }
 
-    player_.reset( new NTV2Player(&DEFAULT_INIT_PARAMS, deviceSpec, (noAudio ? false : true), channel, pixelFormat, outputDest, videoFormat, false, false, doMultiChannel ? true : false, sendType));
+    const NTV2VideoFormat       videoFormat(getVideoFormat(displayMode_));
+    const NTV2FrameBufferFormat pixelFormat(getPixelFormat(pixelFormat_));
+
+    uint32_t                    channelNumber(AjaDevice::DEFAULT_PLAYBACK_CHANNEL);                    //    Number of the channel to use
+    int                         noAudio(0);                    //    Disable audio tone?
+    const NTV2Channel           channel(::GetNTV2ChannelForIndex(channelNumber - 1));
+    const NTV2OutputDestination outputDest(::NTV2ChannelToOutputDestination(channel));
+    int                         doMultiChannel(0);                    //    Enable multi-format?
+    AJAAncillaryDataType        sendType = AJAAncillaryDataType_Unknown;
+
+    player_.reset( 
+        new NTV2Player(
+            &DEFAULT_INIT_PARAMS, 
+            deviceSpec, 
+            (noAudio ? false : true), 
+            channel, 
+            pixelFormat, 
+            outputDest, 
+            videoFormat, 
+            false, 
+            false, 
+            doMultiChannel ? true : false, 
+            sendType));
 
     //    Initialize the player...
     status = player_->Init();

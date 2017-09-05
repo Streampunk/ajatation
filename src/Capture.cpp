@@ -183,13 +183,19 @@ bool Capture::stop()
 bool Capture::initNtv2Capture()
 {
     bool  success(false);
-    const string deviceSpec("0");
-    uint32_t channelNumber(1);                    //    Number of the channel to use
-    //const NTV2VideoFormat    videoFormat(getVideoFormat(displayMode_));
-    const NTV2FrameBufferFormat    pixelFormat(getPixelFormat(genericPixelFormat_));
-    bool multiFormat(false); // TODO: determine significance of this
-    bool captureAncilliaryData(false); 
-    AJAStatus        status(AJA_STATUS_SUCCESS);
+    string deviceSpec(AjaDevice::DEFAULT_DEVICE_SPECIFIER);
+    char buffer[10];
+    
+    if(_itoa_s(deviceIndex_, buffer, 10) == 0)
+    {
+        deviceSpec = buffer;
+    }
+
+    uint32_t                     channelNumber(AjaDevice::DEFAULT_CAPTURE_CHANNEL);                    //    Number of the channel to use
+    const NTV2FrameBufferFormat  pixelFormat(getPixelFormat(genericPixelFormat_));
+    bool                         multiFormat(false); 
+    bool                         captureAncilliaryData(false); 
+    AJAStatus                    status(AJA_STATUS_SUCCESS);
 
     cout << "Capture initializing with pixelFormat " << pixelFormat << endl;
 
@@ -249,50 +255,6 @@ bool Capture::cleanupNtv2Capture()
 }
 
 bool Capture::initInput() {
-//  // bool result = false;
-//  IDeckLinkDisplayModeIterator*    displayModeIterator = NULL;
-//  IDeckLinkDisplayMode*            deckLinkDisplayMode = NULL;
-//
-//  m_width = -1;
-//
-//  // get frame scale and duration for the video mode
-//  if (m_deckLinkInput->GetDisplayModeIterator(&displayModeIterator) != S_OK)
-//    return false;
-//
-//  while (displayModeIterator->Next(&deckLinkDisplayMode) == S_OK)
-//  {
-//    if (deckLinkDisplayMode->GetDisplayMode() == displayMode_)
-//    {
-//      m_width = deckLinkDisplayMode->GetWidth();
-//      m_height = deckLinkDisplayMode->GetHeight();
-//      deckLinkDisplayMode->GetFrameRate(&m_frameDuration, &m_timeScale);
-//      deckLinkDisplayMode->Release();
-//
-//      break;
-//    }
-//
-//    deckLinkDisplayMode->Release();
-//  }
-//
-//  printf("Width %li Height %li\n", m_width, m_height);
-//
-//  displayModeIterator->Release();
-//
-//  if (m_width == -1)
-//    return false;
-//
-//  m_deckLinkInput->SetCallback(this);
-//
-//  if (m_deckLinkInput->EnableVideoInput((BMDDisplayMode) displayMode_, (BMDPixelFormat) pixelFormat_, bmdVideoInputFlagDefault) != S_OK)
-//      return false;
-//
-//  if (m_deckLinkInput->StartStreams() != S_OK)
-//    return false;
-
-//  NTV2VideoFormat format = capture_->GetVideoFormat();
-
-  
-
   return true;
 }
 

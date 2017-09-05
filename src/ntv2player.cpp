@@ -63,49 +63,51 @@ static const uint32_t    AUDIOBYTES_MAX_96K    (401 * 1024);
 **/
 static const ULWord        kAppSignature    (AJA_FOURCC ('S','T','P','K'));
 
-
+const unsigned int ON_DEVICE_BUFFER_SIZE(7);/// Number of device buffers to allocate
+const unsigned int TARGET_FILL_LEVEL((ON_DEVICE_BUFFER_SIZE + CIRCULAR_BUFFER_SIZE) / 2);
 
 NTV2Player::NTV2Player (const AjaDevice::InitParams* initParams,
-                        const string &                 inDeviceSpecifier,
-                        const bool                     inWithAudio,
-                        const NTV2Channel             inChannel,
-                        const NTV2FrameBufferFormat     inPixelFormat,
-                        const NTV2OutputDestination     inOutputDestination,
-                        const NTV2VideoFormat         inVideoFormat,
-                        const bool                     inEnableVanc,
-                        const bool                     inLevelConversion,
-                        const bool                     inDoMultiChannel,
-                        const AJAAncillaryDataType     inSendHDRType)
+                        const string &               inDeviceSpecifier,
+                        const bool                   inWithAudio,
+                        const NTV2Channel            inChannel,
+                        const NTV2FrameBufferFormat  inPixelFormat,
+                        const NTV2OutputDestination  inOutputDestination,
+                        const NTV2VideoFormat        inVideoFormat,
+                        const bool                   inEnableVanc,
+                        const bool                   inLevelConversion,
+                        const bool                   inDoMultiChannel,
+                        const AJAAncillaryDataType   inSendHDRType)
 
-    :    mConsumerThread                (NULL),
-        mProducerThread                (NULL),
+    :    mConsumerThread             (NULL),
+        mProducerThread              (NULL),
         mLock                        (new AJALock (CNTV2DemoCommon::GetGlobalMutexName ())),
         mCurrentFrame                (0),
-        mCurrentSample                (0),
-        mToneFrequency                (440.0),
-        mDeviceSpecifier            (inDeviceSpecifier),
+        mCurrentSample               (0),
+        mToneFrequency               (440.0),
+        mDeviceSpecifier             (inDeviceSpecifier),
         mDeviceID                    (DEVICE_ID_NOTFOUND),
-        mOutputChannel                (inChannel),
-        mOutputDestination            (inOutputDestination),
-        mVideoFormat                (inVideoFormat),
-        mPixelFormat                (inPixelFormat),
-        mSavedTaskMode                (NTV2_DISABLE_TASKS),
-        mAudioSystem                (NTV2_AUDIOSYSTEM_1),
+        mOutputChannel               (inChannel),
+        mOutputDestination           (inOutputDestination),
+        mVideoFormat                 (inVideoFormat),
+        mPixelFormat                 (inPixelFormat),
+        mSavedTaskMode               (NTV2_DISABLE_TASKS),
+        mAudioSystem                 (NTV2_AUDIOSYSTEM_1),
         mVancMode                    (NTV2_VANCMODE_OFF),
-        mWithAudio                    (inWithAudio),
-        mEnableVanc                    (inEnableVanc),
-        mGlobalQuit                    (false),
-        mDoLevelConversion            (inLevelConversion),
-        mVideoBufferSize            (0),
-        mAudioBufferSize            (0),
-        mTestPatternVideoBuffers    (NULL),
-        mNumTestPatterns            (0),
+        mWithAudio                   (inWithAudio),
+        mEnableVanc                  (inEnableVanc),
+        mGlobalQuit                  (false),
+        mDoLevelConversion           (inLevelConversion),
+        mVideoBufferSize             (0),
+        mAudioBufferSize             (0),
+        mTestPatternVideoBuffers     (NULL),
+        mNumTestPatterns             (0),
         mCallbackUserData            (NULL),
         mCallback                    (NULL),
         mScheduleFrameCallbackContext(NULL),
-        mScheduleFrameCallback        (NULL),
-        mAncType                    (inSendHDRType),
-        mInitParams                 (initParams)
+        mScheduleFrameCallback       (NULL),
+        mAncType                     (inSendHDRType),
+        mInitParams                  (initParams),
+        mEnableTestPatternFill       (false)
 {
     ::memset (mAVHostBuffer, 0, sizeof (mAVHostBuffer));
 }
@@ -208,10 +210,10 @@ AJAStatus NTV2Player::Init (void)
         SetUpOutputAutoCirculate();
 
         //    Lastly, prepare my AJATimeCodeBurn instance...
-        const NTV2FormatDescriptor    fd(mVideoFormat, mPixelFormat, mVancMode);
-        mTCBurner.RenderTimeCodeFont(CNTV2DemoCommon::GetAJAPixelFormat(mPixelFormat), fd.numPixels, fd.numLines);
-    }
+        // REMOVE const NTV2FormatDescriptor    fd(mVideoFormat, mPixelFormat, mVancMode);
+        // REMOVE mTCBurner.RenderTimeCodeFont(CNTV2DemoCommon::GetAJAPixelFormat(mPixelFormat), fd.numPixels, fd.numLines);
 
+    }
     return status;
 
 }    //    Init
@@ -219,34 +221,38 @@ AJAStatus NTV2Player::Init (void)
 
 AJAStatus NTV2Player::SetUpVideo ()
 {
-    if (!mDeviceRef) return AJA_STATUS_INITIALIZE;
-
-    if (mVideoFormat == NTV2_FORMAT_UNKNOWN)
-        mDeviceRef->GetVideoFormat(&mVideoFormat, NTV2_CHANNEL1);
-
-    if (!::NTV2DeviceCanDoVideoFormat (mDeviceID, mVideoFormat))
-        {cerr << "## ERROR:  This device cannot handle '" << ::NTV2VideoFormatToString (mVideoFormat) << "'" << endl;  return AJA_STATUS_UNSUPPORTED;}
-
-    //    Configure the device to handle the requested video format...
-    mDeviceRef->SetVideoFormat(mVideoFormat, false, false, mOutputChannel);
-
-    if (!::NTV2DeviceCanDo3GLevelConversion (mDeviceID) && mDoLevelConversion && ::IsVideoFormatA (mVideoFormat))
-        mDoLevelConversion = false;
-    if (mDoLevelConversion)
-        mDeviceRef->SetSDIOutLevelAtoLevelBConversion(mOutputChannel, mDoLevelConversion);
-
-    //    Set the frame buffer pixel format for all the channels on the device.
-    //    If the device doesn't support it, fall back to 8-bit YCbCr...
-    if (!::NTV2DeviceCanDoFrameBufferFormat (mDeviceID, mPixelFormat))
+    // TEST!!!
+    if(mInitParams->doMultiChannel)
     {
-        cerr    << "## NOTE:  Device cannot handle '" << ::NTV2FrameBufferFormatString (mPixelFormat) << "' -- using '"
-                << ::NTV2FrameBufferFormatString (NTV2_FBF_8BIT_YCBCR) << "' instead" << endl;
-        mPixelFormat = NTV2_FBF_8BIT_YCBCR;
+        if (!mDeviceRef) return AJA_STATUS_INITIALIZE;
+        
+        if (mVideoFormat == NTV2_FORMAT_UNKNOWN)
+            mDeviceRef->GetVideoFormat(&mVideoFormat, NTV2_CHANNEL1);
+        
+        if (!::NTV2DeviceCanDoVideoFormat (mDeviceID, mVideoFormat))
+            {cerr << "## ERROR:  This device cannot handle '" << ::NTV2VideoFormatToString (mVideoFormat) << "'" << endl;  return AJA_STATUS_UNSUPPORTED;}
+
+        //    Configure the device to handle the requested video format...
+        mDeviceRef->SetVideoFormat(mVideoFormat, false, false, mOutputChannel);
+
+        if (!::NTV2DeviceCanDo3GLevelConversion (mDeviceID) && mDoLevelConversion && ::IsVideoFormatA (mVideoFormat))
+            mDoLevelConversion = false;
+        if (mDoLevelConversion)
+            mDeviceRef->SetSDIOutLevelAtoLevelBConversion(mOutputChannel, mDoLevelConversion);
+        
+        //    Set the frame buffer pixel format for all the channels on the device.
+        //    If the device doesn't support it, fall back to 8-bit YCbCr...
+        if (!::NTV2DeviceCanDoFrameBufferFormat (mDeviceID, mPixelFormat))
+        {
+            cerr    << "## NOTE:  Device cannot handle '" << ::NTV2FrameBufferFormatString (mPixelFormat) << "' -- using '"
+                    << ::NTV2FrameBufferFormatString (NTV2_FBF_8BIT_YCBCR) << "' instead" << endl;
+            mPixelFormat = NTV2_FBF_8BIT_YCBCR;
+        }
+
+        mDeviceRef->SetFrameBufferFormat(mOutputChannel, mPixelFormat);
+
+        SetReferenceIfNone();
     }
-
-    mDeviceRef->SetFrameBufferFormat(mOutputChannel, mPixelFormat);
-
-    SetReferenceIfNone();
     mDeviceRef->EnableChannel(mOutputChannel);
 
     if (mEnableVanc && !::IsRGBFormat (mPixelFormat) && NTV2_IS_HD_VIDEO_FORMAT (mVideoFormat))
@@ -374,22 +380,22 @@ void NTV2Player::RouteOutputSignal ()
     if (isRGB)
         mDeviceRef->Connect(::GetCSCInputXptFromChannel(mOutputChannel, false/*isKeyInput*/), fsVidOutXpt);
 
-    if (mInitParams->doMultiChannel)
-    {
-        //    Multiformat --- route the one SDI output to the CSC video output (RGB) or FrameStore output (YUV)...
-        if (::NTV2DeviceHasBiDirectionalSDI (mDeviceID))
-            mDeviceRef->SetSDITransmitEnable(mOutputChannel, true);
-
-        mDeviceRef->Connect(::GetSDIOutputInputXpt(mOutputChannel, false/*isDS2*/), isRGB ? cscVidOutXpt : fsVidOutXpt);
-        mDeviceRef->SetSDIOutputStandard(mOutputChannel, outputStandard);
-    }
-    else
+    //if (mInitParams->doMultiChannel)
+    //{
+    //    //    Multiformat --- route the one SDI output to the CSC video output (RGB) or FrameStore output (YUV)...
+    //    if (::NTV2DeviceHasBiDirectionalSDI (mDeviceID))
+    //        mDeviceRef->SetSDITransmitEnable(mOutputChannel, true);
+    //
+    //    mDeviceRef->Connect(::GetSDIOutputInputXpt(mOutputChannel, false/*isDS2*/), isRGB ? cscVidOutXpt : fsVidOutXpt);
+    //    mDeviceRef->SetSDIOutputStandard(mOutputChannel, outputStandard);
+    //}
+    //else
     {
         if (isRGB)
             mDeviceRef->Connect(::GetCSCInputXptFromChannel(mOutputChannel, false/*isKeyInput*/), fsVidOutXpt);
 
         /* NTV2_CHANNEL1 below stops the input flow */
-        for (NTV2Channel chan (NTV2_CHANNEL1);  ULWord (chan) < numVideoOutputs;  chan = NTV2Channel (chan + 1))
+        for (NTV2Channel chan (mOutputChannel);  ULWord (chan) < numVideoOutputs;  chan = NTV2Channel (chan + 1))
         {
             if (::NTV2DeviceHasBiDirectionalSDI (mDeviceID))
                 mDeviceRef->SetSDITransmitEnable(chan, true);        //    Make it an output
@@ -412,7 +418,7 @@ void NTV2Player::RouteOutputSignal ()
 
 void NTV2Player::SetUpOutputAutoCirculate ()
 {
-    const uint32_t    buffersPerChannel (7);        //    Sufficient and safe for all devices & FBFs
+    const uint32_t    buffersPerChannel (ON_DEVICE_BUFFER_SIZE);        //    Sufficient and safe for all devices & FBFs
 
     mDeviceRef->AutoCirculateStop(mOutputChannel);
     {
@@ -429,7 +435,7 @@ AJAStatus NTV2Player::Run ()
 {
     //    Start my consumer and producer threads...
     StartConsumerThread ();
-    StartProducerThread ();
+    //StartProducerThread ();
 
     return AJA_STATUS_SUCCESS;
 
@@ -508,7 +514,7 @@ void NTV2Player::PlayFrames (void)
         //    Check if there's room for another frame on the card...
         if (numAvailableFrames > 1)
         {
-            TRACE_LOG("Consuming frame");
+            SmoothBuffer(numAvailableFrames);
 
             //    Wait for the next frame to become ready to "consume"...
             AVDataBuffer *    playData    (mAVCircularBuffer.StartConsumeNextBuffer ());
@@ -555,6 +561,20 @@ void NTV2Player::PlayFrames (void)
 
 }    //    PlayFrames
 
+
+/**
+    @brief    Try to keep the input buffer reasonably stocked by delaying the output if the buffer is badly depleted
+**/
+void NTV2Player::SmoothBuffer(ULWord cardBufferFreeSlots)
+{
+    auto unused_frames = (CIRCULAR_BUFFER_SIZE - mAVCircularBuffer.GetCircBufferCount()) + cardBufferFreeSlots;
+
+    //if(unused_frames > TARGET_FILL_LEVEL)
+    //{
+    //    mDeviceRef->WaitForOutputVerticalInterrupt(mOutputChannel);
+    //    mDeviceRef->WaitForOutputVerticalInterrupt(mOutputChannel);
+    //}
+}
 
 
 //////////////////////////////////////////////
@@ -650,6 +670,8 @@ AJAStatus NTV2Player::SetUpTestPatternVideoBuffers (void)
 
     }    //    for each test pattern
 
+    //mEnableTestPatternFill = true;
+
     return AJA_STATUS_SUCCESS;
 
 }    //    SetUpTestPatternVideoBuffers
@@ -680,8 +702,6 @@ bool NTV2Player::ScheduleFrame(
 
     // Lock the circular buffer to prevent collisions with ProduceFrames()
     AJAAutoLock    autoLock(mLock);    //    Lock to prevent collisions with the Frame Generator 
-
-    TRACE_LOG("Pushing frame into buffer");
 
     LOG_BUFFER_STATE("Scheduling frame");
 
@@ -753,7 +773,7 @@ void NTV2Player::ProduceFrames (void)
         // or if there is a frame callback defined. Otherwise allow the 'ScheduleFrame'
         // method to put frames into the queue
         //
-        if (mCallback || mAVCircularBuffer.GetCircBufferCount() == 0)
+        if (mCallback || (mAVCircularBuffer.GetCircBufferCount() == 0 && mEnableTestPatternFill == true))
         {
             LOG_BUFFER_STATE("Adding colour bar frame");
 

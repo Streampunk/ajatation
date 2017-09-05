@@ -10,32 +10,66 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AjatationTest", "AjatationT
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Ajatation", "Ajatation\Ajatation.vcxproj", "{1AA3BC06-0BA4-459F-9738-071B9A4B3636}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AjatationTestControl", "AjatationTestControl\AjatationTestControl.vcxproj", "{452815E6-3286-4E95-A782-04C4C2ACD6AE}"
+	ProjectSection(ProjectDependencies) = postProject
+		{1AA3BC06-0BA4-459F-9738-071B9A4B3636} = {1AA3BC06-0BA4-459F-9738-071B9A4B3636}
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{25ABB60C-B801-414B-9990-26883CE0342F}"
+	ProjectSection(SolutionItems) = preProject
+		Performance1.psess = Performance1.psess
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Mixed Platforms = Debug|Mixed Platforms
 		Debug|Win32 = Debug|Win32
 		Debug|x64 = Debug|x64
+		Release|Mixed Platforms = Release|Mixed Platforms
 		Release|Win32 = Release|Win32
 		Release|x64 = Release|x64
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{39C2AEF6-CB5E-40FA-8C0D-439090ADD536}.Debug|Mixed Platforms.ActiveCfg = Debug|Win32
+		{39C2AEF6-CB5E-40FA-8C0D-439090ADD536}.Debug|Mixed Platforms.Build.0 = Debug|Win32
 		{39C2AEF6-CB5E-40FA-8C0D-439090ADD536}.Debug|Win32.ActiveCfg = Debug|Win32
 		{39C2AEF6-CB5E-40FA-8C0D-439090ADD536}.Debug|Win32.Build.0 = Debug|Win32
 		{39C2AEF6-CB5E-40FA-8C0D-439090ADD536}.Debug|x64.ActiveCfg = Debug|x64
 		{39C2AEF6-CB5E-40FA-8C0D-439090ADD536}.Debug|x64.Build.0 = Debug|x64
+		{39C2AEF6-CB5E-40FA-8C0D-439090ADD536}.Release|Mixed Platforms.ActiveCfg = Release|Win32
+		{39C2AEF6-CB5E-40FA-8C0D-439090ADD536}.Release|Mixed Platforms.Build.0 = Release|Win32
 		{39C2AEF6-CB5E-40FA-8C0D-439090ADD536}.Release|Win32.ActiveCfg = Release|Win32
 		{39C2AEF6-CB5E-40FA-8C0D-439090ADD536}.Release|Win32.Build.0 = Release|Win32
 		{39C2AEF6-CB5E-40FA-8C0D-439090ADD536}.Release|x64.ActiveCfg = Release|x64
 		{39C2AEF6-CB5E-40FA-8C0D-439090ADD536}.Release|x64.Build.0 = Release|x64
+		{1AA3BC06-0BA4-459F-9738-071B9A4B3636}.Debug|Mixed Platforms.ActiveCfg = Debug|Win32
+		{1AA3BC06-0BA4-459F-9738-071B9A4B3636}.Debug|Mixed Platforms.Build.0 = Debug|Win32
 		{1AA3BC06-0BA4-459F-9738-071B9A4B3636}.Debug|Win32.ActiveCfg = Debug|Win32
 		{1AA3BC06-0BA4-459F-9738-071B9A4B3636}.Debug|Win32.Build.0 = Debug|Win32
 		{1AA3BC06-0BA4-459F-9738-071B9A4B3636}.Debug|x64.ActiveCfg = Debug|x64
 		{1AA3BC06-0BA4-459F-9738-071B9A4B3636}.Debug|x64.Build.0 = Debug|x64
+		{1AA3BC06-0BA4-459F-9738-071B9A4B3636}.Release|Mixed Platforms.ActiveCfg = Release|Win32
+		{1AA3BC06-0BA4-459F-9738-071B9A4B3636}.Release|Mixed Platforms.Build.0 = Release|Win32
 		{1AA3BC06-0BA4-459F-9738-071B9A4B3636}.Release|Win32.ActiveCfg = Release|Win32
 		{1AA3BC06-0BA4-459F-9738-071B9A4B3636}.Release|Win32.Build.0 = Release|Win32
 		{1AA3BC06-0BA4-459F-9738-071B9A4B3636}.Release|x64.ActiveCfg = Release|x64
 		{1AA3BC06-0BA4-459F-9738-071B9A4B3636}.Release|x64.Build.0 = Release|x64
+		{452815E6-3286-4E95-A782-04C4C2ACD6AE}.Debug|Mixed Platforms.ActiveCfg = Debug|Win32
+		{452815E6-3286-4E95-A782-04C4C2ACD6AE}.Debug|Mixed Platforms.Build.0 = Debug|Win32
+		{452815E6-3286-4E95-A782-04C4C2ACD6AE}.Debug|Win32.ActiveCfg = Debug|Win32
+		{452815E6-3286-4E95-A782-04C4C2ACD6AE}.Debug|Win32.Build.0 = Debug|Win32
+		{452815E6-3286-4E95-A782-04C4C2ACD6AE}.Debug|x64.ActiveCfg = Debug|x64
+		{452815E6-3286-4E95-A782-04C4C2ACD6AE}.Debug|x64.Build.0 = Debug|x64
+		{452815E6-3286-4E95-A782-04C4C2ACD6AE}.Release|Mixed Platforms.ActiveCfg = Release|Win32
+		{452815E6-3286-4E95-A782-04C4C2ACD6AE}.Release|Mixed Platforms.Build.0 = Release|Win32
+		{452815E6-3286-4E95-A782-04C4C2ACD6AE}.Release|Win32.ActiveCfg = Release|Win32
+		{452815E6-3286-4E95-A782-04C4C2ACD6AE}.Release|Win32.Build.0 = Release|Win32
+		{452815E6-3286-4E95-A782-04C4C2ACD6AE}.Release|x64.ActiveCfg = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(Performance) = preSolution
+		HasPerformanceSessions = true
 	EndGlobalSection
 EndGlobal

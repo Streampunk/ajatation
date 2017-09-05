@@ -134,6 +134,7 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\..\aja\ntv2sdkwin_13.0.0.18\ajaapps\crossplatform\demoapps\ntv2democommon.cpp" />
     <ClCompile Include="..\..\..\src\AjaDevice.cpp" />
     <ClCompile Include="..\..\..\src\ajatation.cpp" />
     <ClCompile Include="..\..\..\src\Capture.cpp" />
