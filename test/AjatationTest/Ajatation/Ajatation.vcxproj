@@ -19,40 +19,36 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{39C2AEF6-CB5E-40FA-8C0D-439090ADD536}</ProjectGuid>
+    <ProjectGuid>{1AA3BC06-0BA4-459F-9738-071B9A4B3636}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>AjatationTest</RootNamespace>
+    <RootNamespace>Ajatation</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v120</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
-    <UseOfMfc>false</UseOfMfc>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v120</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
-    <UseOfMfc>false</UseOfMfc>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v120</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
-    <UseOfMfc>false</UseOfMfc>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v120</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
-    <UseOfMfc>false</UseOfMfc>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -70,102 +66,91 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <LinkIncremental>true</LinkIncremental>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <LinkIncremental>true</LinkIncremental>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <LinkIncremental>true</LinkIncremental>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <LinkIncremental>true</LinkIncremental>
-  </PropertyGroup>
+  <PropertyGroup />
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>$(VCInstallDir)UnitTest\include;$(MSBuildProjectDirectory)\..\..\..\src;$(MSBuildProjectDirectory)\..\..\..\src\common;$(MSBuildProjectDirectory)\..\..\..\aja\ntv2sdkwin_13.0.0.18\ajalibraries\ajantv2\includes;%(AdditionalIncludeDirectories);$(MSBuildProjectDirectory)\..\..\..\..\..\.node-gyp\6.11.2\include\node;$(MSBuildProjectDirectory)\..\..\..\node_modules\nan;$(MSBuildProjectDirectory)\..\..\..\aja\ntv2sdkwin_13.0.0.18\ajaapps\crossplatform\demoapps;$(MSBuildProjectDirectory)\..\..\..\aja\ntv2sdkwin_13.0.0.18\ajalibraries\ajantv2\src\win;$(MSBuildProjectDirectory)\..\..\..\aja\ntv2sdkwin_13.0.0.18\ajalibraries</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_DEBUG;MSWindows;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <UseFullPaths>true</UseFullPaths>
+      <PreprocessorDefinitions>AJA_WINDOWS;MSWindows;WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(MSBuildProjectDirectory)\..\..\..\src\common;$(MSBuildProjectDirectory)\..\..\..\..\..\.node-gyp\6.11.2\include\node;$(MSBuildProjectDirectory)\..\..\..\node_modules\nan;$(MSBuildProjectDirectory)\..\..\..\aja\ntv2sdkwin_13.0.0.18\ajaapps\crossplatform\demoapps;$(MSBuildProjectDirectory)\..\..\..\aja\ntv2sdkwin_13.0.0.18\ajalibraries\ajantv2\src\win;$(MSBuildProjectDirectory)\..\..\..\aja\ntv2sdkwin_13.0.0.18\ajalibraries\ajantv2\includes;$(MSBuildProjectDirectory)\..\..\..\aja\ntv2sdkwin_13.0.0.18\ajalibraries;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(VCInstallDir)UnitTest\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>$(TargetDir)Ajatation.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>$(VCInstallDir)UnitTest\include;$(MSBuildProjectDirectory)\..\..\..\src;$(MSBuildProjectDirectory)\..\..\..\src\common;$(MSBuildProjectDirectory)\..\..\..\aja\ntv2sdkwin_13.0.0.18\ajalibraries\ajantv2\includes;%(AdditionalIncludeDirectories);$(MSBuildProjectDirectory)\..\..\..\..\..\.node-gyp\6.11.2\include\node;$(MSBuildProjectDirectory)\..\..\..\node_modules\nan;$(MSBuildProjectDirectory)\..\..\..\aja\ntv2sdkwin_13.0.0.18\ajaapps\crossplatform\demoapps;$(MSBuildProjectDirectory)\..\..\..\aja\ntv2sdkwin_13.0.0.18\ajalibraries\ajantv2\src\win;$(MSBuildProjectDirectory)\..\..\..\aja\ntv2sdkwin_13.0.0.18\ajalibraries</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_DEBUG;MSWindows;AJA_WINDOWS;AJA_DEBUG;AJA_NO_AUTOIMPORT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <UseFullPaths>true</UseFullPaths>
+      <PreprocessorDefinitions>MSWindows;AJA_WINDOWS;AJA_DEBUG;AJA_NO_AUTOIMPORT;WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(MSBuildProjectDirectory)\..\..\..\src\common;$(MSBuildProjectDirectory)\..\..\..\..\..\.node-gyp\6.11.2\include\node;$(MSBuildProjectDirectory)\..\..\..\node_modules\nan;$(MSBuildProjectDirectory)\..\..\..\aja\ntv2sdkwin_13.0.0.18\ajaapps\crossplatform\demoapps;$(MSBuildProjectDirectory)\..\..\..\aja\ntv2sdkwin_13.0.0.18\ajalibraries\ajantv2\src\win;$(MSBuildProjectDirectory)\..\..\..\aja\ntv2sdkwin_13.0.0.18\ajalibraries\ajantv2\includes;$(MSBuildProjectDirectory)\..\..\..\aja\ntv2sdkwin_13.0.0.18\ajalibraries;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(VCInstallDir)UnitTest\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>$(TargetDir)Ajatation.lib;$(MSBuildProjectDirectory)\..\..\..\aja\ntv2sdkwin_13.0.0.18\lib\libajabased.lib;$(MSBuildProjectDirectory)\..\..\..\aja\ntv2sdkwin_13.0.0.18\lib\libajaanc_vs12_64d.lib;$(MSBuildProjectDirectory)\..\..\..\aja\ntv2sdkwin_13.0.0.18\lib\libajantv2d.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalIncludeDirectories>$(VCInstallDir)UnitTest\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <UseFullPaths>true</UseFullPaths>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>$(VCInstallDir)UnitTest\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalIncludeDirectories>$(VCInstallDir)UnitTest\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <UseFullPaths>true</UseFullPaths>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>$(VCInstallDir)UnitTest\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="stdafx.h" />
-    <ClInclude Include="targetver.h" />
+    <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="stdafx.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="Test_AjaDevice.cpp" />
-    <ClCompile Include="Test_TypeMap.cpp" />
+    <ClCompile Include="..\..\..\src\AjaDevice.cpp" />
+    <ClCompile Include="..\..\..\src\ajatation.cpp" />
+    <ClCompile Include="..\..\..\src\Capture.cpp" />
+    <ClCompile Include="..\..\..\src\gen2ajaTypeMaps.cpp" />
+    <ClCompile Include="..\..\..\src\ntv2capture.cpp" />
+    <ClCompile Include="..\..\..\src\ntv2player.cpp" />
+    <ClCompile Include="..\..\..\src\Playback.cpp" />
+    <ClCompile Include="..\..\..\src\utils.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\src\AjaDevice.h" />
+    <ClInclude Include="..\..\..\src\Capture.h" />
+    <ClInclude Include="..\..\..\src\gen2ajaTypeMaps.h" />
+    <ClInclude Include="..\..\..\src\ntv2capture.h" />
+    <ClInclude Include="..\..\..\src\ntv2player.h" />
+    <ClInclude Include="..\..\..\src\Playback.h" />
+    <ClInclude Include="..\..\..\src\utils.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

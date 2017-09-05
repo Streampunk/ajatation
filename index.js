@@ -29,7 +29,7 @@ const EventEmitter = require('events');
 
 // var SegfaultHandler = require('../node-segfault-handler');
 // SegfaultHandler.registerHandler("crash.log");
-/*
+
 function Capture (deviceIndex, displayMode, pixelFormat) {
   if (arguments.length !== 3 || typeof deviceIndex !== 'number' ||
       typeof displayMode !== 'number' || typeof pixelFormat !== 'number' ) {
@@ -87,7 +87,7 @@ Capture.prototype.enableAudio = function (sampleRate, sampleType, channelCount) 
     return "Error when enabling audio: " + err;
   }
 }
-*/
+
 
 function Playback (deviceIndex, displayMode, pixelFormat) {
   if (arguments.length !== 3 || typeof deviceIndex !== 'number' ||
@@ -613,7 +613,7 @@ var ajatation = {
   getFirstDevice: ajatatorNative.getFirstDevice,
   // Raw access to device classes
   //DirectCapture: ajatatorNative.Capture,
-  //Capture : Capture,
+  Capture : Capture,
   Playback : Playback
 };
 

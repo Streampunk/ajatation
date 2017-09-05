@@ -26,11 +26,11 @@
 #ifdef WIN32
 #include <tchar.h>
 #include <conio.h>
-#include <objbase.h>		// Necessary for COM
+#include <objbase.h>        // Necessary for COM
 #include <comdef.h>
 #endif
 
-//#include "Capture.h"
+#include "Capture.h"
 #include "Playback.h"
 
 using namespace v8;
@@ -40,20 +40,20 @@ NAN_METHOD(deviceSdkVersion) {
   //TODO Implement properly
 
   char sdkVer [80];
-  int	dlVerMajor, dlVerMinor, dlVerPoint;
+  int    dlVerMajor, dlVerMinor, dlVerPoint;
 
   dlVerMajor = 0;
   dlVerMinor = 0;
   dlVerPoint = 0;
 
-  sprintf(sdkVer, "TODO: SDK API version: %d.%d.%d", dlVerMajor, dlVerMinor, dlVerPoint);
+  sprintf_s(sdkVer, "TODO: SDK API version: %d.%d.%d", dlVerMajor, dlVerMinor, dlVerPoint);
 
   info.GetReturnValue().Set(Nan::New(sdkVer).ToLocalChecked());
 }
 
 NAN_METHOD(GetFirstDevice) {
   //IDeckLinkIterator* deckLinkIterator;
-  //HRESULT	result;
+  //HRESULT    result;
   //IDeckLinkAPIInformation *deckLinkAPIInformation;
   //IDeckLink* deckLink;
   //#ifdef WIN32
@@ -115,6 +115,7 @@ NAN_MODULE_INIT(Init) {
   Nan::Export(target, "getFirstDevice", GetFirstDevice);
   //streampunk::Capture::Init(target);
   streampunk::Playback::Init(target);
+  streampunk::Capture::Init(target);
 }
 
 NODE_MODULE(ajatation, Init);
