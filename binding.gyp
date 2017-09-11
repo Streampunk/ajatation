@@ -32,7 +32,9 @@
 			"src/Playback.cpp",
 			"src/Capture.cpp",
             "src/gen2ajaTypeMaps.cpp",
-            "src/AjaDevice.cpp"
+            "src/AjaDevice.cpp",
+            "src/ntv2sharedcard.cpp",
+            "src/BufferStatus.cpp"
 		],
         "configurations": {
           "Release": {

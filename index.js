@@ -609,10 +609,9 @@ var ajatation = {
   formatSampling : formatSampling,
   formatColorimetry : formatColorimetry,
   // access details about the currently connected devices
-  //deckLinkVersion: ajatatorNative.deckLinkVersion,
+  deviceVersion: ajatatorNative.deviceSdkVersion,
   getFirstDevice: ajatatorNative.getFirstDevice,
   // Raw access to device classes
-  //DirectCapture: ajatatorNative.Capture,
   Capture : Capture,
   Playback : Playback
 };

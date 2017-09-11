@@ -137,21 +137,37 @@
     <ClCompile Include="..\..\..\aja\ntv2sdkwin_13.0.0.18\ajaapps\crossplatform\demoapps\ntv2democommon.cpp" />
     <ClCompile Include="..\..\..\src\AjaDevice.cpp" />
     <ClCompile Include="..\..\..\src\ajatation.cpp" />
+    <ClCompile Include="..\..\..\src\BufferStatus.cpp" />
     <ClCompile Include="..\..\..\src\Capture.cpp" />
     <ClCompile Include="..\..\..\src\gen2ajaTypeMaps.cpp" />
     <ClCompile Include="..\..\..\src\ntv2capture.cpp" />
     <ClCompile Include="..\..\..\src\ntv2player.cpp" />
+    <ClCompile Include="..\..\..\src\ntv2sharedcard.cpp" />
     <ClCompile Include="..\..\..\src\Playback.cpp" />
     <ClCompile Include="..\..\..\src\utils.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\src\AjaDevice.h" />
+    <ClInclude Include="..\..\..\src\BufferStatus.h" />
     <ClInclude Include="..\..\..\src\Capture.h" />
     <ClInclude Include="..\..\..\src\gen2ajaTypeMaps.h" />
     <ClInclude Include="..\..\..\src\ntv2capture.h" />
     <ClInclude Include="..\..\..\src\ntv2player.h" />
+    <ClInclude Include="..\..\..\src\ntv2sharedcard.h" />
     <ClInclude Include="..\..\..\src\Playback.h" />
     <ClInclude Include="..\..\..\src\utils.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\..\index.js" />
+    <None Include="..\..\..\scratch\convertEBU.js" />
+    <None Include="..\..\..\scratch\play.js" />
+    <None Include="..\..\..\scratch\play_extended.js" />
+    <None Include="..\..\..\scratch\play_safe.js" />
+    <None Include="..\..\..\scratch\readEBU.js" />
+    <None Include="..\..\..\scratch\readEBU_safe.js" />
+    <None Include="..\..\..\scratch\record.js" />
+    <None Include="..\..\..\scratch\sigint_test.js" />
+    <None Include="..\..\..\scratch\sysInfo.js" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

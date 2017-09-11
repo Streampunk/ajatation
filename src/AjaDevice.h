@@ -18,9 +18,11 @@
 #include <string>
 #include <map>
 #include <memory>
+#include <string>
 #include <mutex>
-#include "ajantv2\includes\ntv2card.h"
 #include "ajabase\common\types.h"
+#include "ntv2devicescanner.h"
+#include "ntv2sharedcard.h"
 
 namespace streampunk {
 
@@ -40,7 +42,7 @@ public:
 public:
     
     // Factory method prototype to allow the factory methods to be overridden for testing
-    typedef CNTV2Card* (*CNTV2Card_Factory)(void);
+    typedef CNTV2SharedCard* (*CNTV2Card_Factory)(void);
 
     struct InitParams
     {
@@ -67,12 +69,18 @@ public:
         // Allow the reference to be checked in a conditional clause
         operator bool() { return (bool)ref_; }
 
-        CNTV2Card* operator->() { assert(ref_); return (ref_ ? ref_->device_.get() : nullptr); }
+        CNTV2SharedCard* operator->() { assert(ref_); return (ref_ ? ref_->device_.get() : nullptr); }
 
     private:
 
         shared_ptr<AjaDevice> ref_;
     };
+
+    // Return device information - each parameter is filled in if a non-null pointer is supplied
+    static bool GetFirstDevice(uint32_t& numDevices, uint32_t* index = nullptr, std::string* deviceIdentifier = nullptr, uint64_t* deviceSerialNumber = nullptr);
+
+    // Return the driver version number
+    static bool GetDriverVersion(UWord& major, UWord& minor, UWord& point, UWord& build);
 
     // Test function - shouldn't be needed in production code
     static uint32_t GetRefCount(std::string& deviceSpecifier);
@@ -81,7 +89,7 @@ public:
     static CNTV2Card_Factory NTV2Card_Factory;
 
     // default CNTV2Card factory function
-    static CNTV2Card* DefaultCNTV2CardFactory(void) { return new CNTV2Card; }
+    static CNTV2SharedCard* DefaultCNTV2CardFactory(void) { return new CNTV2SharedCard; }
 
     virtual ~AjaDevice();
 
@@ -93,7 +101,7 @@ private:
     void ReleaseDevice();
 
     std::string            deviceSpecifier_;
-    unique_ptr<CNTV2Card>  device_;
+    unique_ptr<CNTV2SharedCard>  device_;
     NTV2EveryFrameTaskMode mode_;
     const InitParams*      initParams_;
     NTV2DeviceID           deviceId_;
@@ -101,9 +109,13 @@ private:
     static AJAStatus AddRef(std::string deviceSpecifier, shared_ptr<AjaDevice>& ref, const InitParams* initParams);
     static void ReleaseRef(shared_ptr<AjaDevice>& ref);
 
+    static void DumpDeviceInfo();
+    static void DumpInfoItem(std::string& label, std::string& data);
+
     static std::map<std::string, shared_ptr<AjaDevice>> references_;
     static std::mutex protectRefCounts_;
     static AJAStatus lastError_;
+    static unique_ptr<CNTV2DeviceScanner> deviceScanner_;
 };
 
 extern const AjaDevice::InitParams DEFAULT_INIT_PARAMS;

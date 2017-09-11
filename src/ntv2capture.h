@@ -145,8 +145,12 @@ class NTV2Capture
             @param[in]    pContext    Context information to pass to the thread.
                                     (For this application, this will point to the NTV2Capture instance.)
         **/
-        static void    ProducerThreadStatic (AJAThread * pThread, void * pContext);
+        static void             ProducerThreadStatic (AJAThread * pThread, void * pContext);
 
+        /**
+            @brief    log the buffer status
+        **/
+        virtual void            LogBufferState(ULWord cardBufferFreeSlots);
 
     //    Private Member Data
     private:
