@@ -154,11 +154,6 @@ class NTV2Player
         virtual AJAStatus        SetUpVideo (void);
 
         /**
-            @brief    Set up a clock reference if there are no inputs.
-        **/
-        virtual void            SetReferenceIfNone (void);
-
-        /**
             @brief    Sets up everything I need to play audio.
         **/
         virtual AJAStatus        SetUpAudio (void);
@@ -222,9 +217,15 @@ class NTV2Player
         virtual void            DisableRP188Bypass (void);
 
         /**
-            @brief    Try to keep the input buffer reasonably stocked by delaying the output if the buffer is badly depleted
+            @brief    log the buffer status
         **/
-        virtual void            SmoothBuffer(ULWord cardBufferFreeSlots);
+        virtual void            LogBufferState(ULWord cardBufferFreeSlots);
+
+
+        /**
+            @brief    Returns true if the output has been enabled - this is delayed on start to allow the buffer to fill
+        **/
+        virtual bool            CheckOutputReady();
 
 #ifdef DEBUG_OUTPUT
         void                    LogBufferState(const char* location);
@@ -306,6 +307,7 @@ class NTV2Player
         AjaDevice::Ref               mDeviceRef;
         const AjaDevice::InitParams* mInitParams;
         bool                         mEnableTestPatternFill;
+        bool                         mOutputStarted;
 };    //    NTV2Player
 
 #endif    //    _NTV2PLAYER_H

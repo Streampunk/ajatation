@@ -4,12 +4,13 @@
     @copyright    Copyright (C) 2012-2017 AJA Video Systems, Inc.  All rights reserved.
 **/
 
+#include <iterator>    //    for inserter
 #include "ntv2capture.h"
 #include "ntv2utils.h"
 #include "ntv2devicefeatures.h"
 #include "ajabase/system/process.h"
 #include "ajabase/system/systemtime.h"
-#include <iterator>    //    for inserter
+#include "BufferStatus.h"
 
 #define NTV2_AUDIOSIZE_MAX    (401 * 1024)
 #define NTV2_ANCSIZE_MAX    (0x2000)
@@ -17,6 +18,8 @@
 
 static const ULWord    kAppSignature    AJA_FOURCC('S', 'T', 'P', 'K');
 
+const unsigned int ON_DEVICE_BUFFER_SIZE(7);/// Number of device buffers to allocate
+const unsigned int TOTAL_BUFFER_SIZE(ON_DEVICE_BUFFER_SIZE + CIRCULAR_BUFFER_SIZE);/// Number of device buffers to allocate
 
 NTV2Capture::NTV2Capture (const streampunk::AjaDevice::InitParams* initParams,
                           const string                    inDeviceSpecifier,
@@ -176,8 +179,8 @@ AJAStatus NTV2Capture::SetupVideo (void)
     }
 
     //    Set the device video format to whatever we detected at the input...
-    mDeviceRef->SetReference(::NTV2InputSourceToReferenceSource(mInputSource));
-    mDeviceRef->SetVideoFormat(mVideoFormat, false, false, mInputChannel);
+    mDeviceRef->SetReference(true, ::NTV2InputSourceToReferenceSource(mInputSource));
+    mDeviceRef->SetVideoFormat(true, mVideoFormat, false, false, mInputChannel);
 
     //    Set the frame buffer pixel format for all the channels on the device
     //    (assuming it supports that pixel format -- otherwise default to 8-bit YCbCr)...
@@ -359,8 +362,9 @@ void NTV2Capture::CaptureFrames (void)
     //    Tell AutoCirculate to use 7 frame buffers for capturing from the device...
     {
         AJAAutoLock    autoLock (mLock);    //    Avoid A/C buffer collisions with other processes
-        mDeviceRef->AutoCirculateInitForInput(mInputChannel, 7,    //    Number of frames to circulate
-                                              mAudioSystem,        //    Which audio system (if any)?
+        mDeviceRef->AutoCirculateInitForInput(mInputChannel, 
+                                              ON_DEVICE_BUFFER_SIZE, //    Number of frames to circulate
+                                              mAudioSystem,          //    Which audio system (if any)?
                                               acOptions);            //    Include timecode (and maybe Anc too)
     }
     
@@ -375,6 +379,8 @@ void NTV2Capture::CaptureFrames (void)
         // TODO - signal an error if we can't get an input frame
         if (acStatus.IsRunning () && acStatus.HasAvailableInputFrame ())
         {
+            LogBufferState(acStatus.GetNumAvailableOutputFrames());
+
             //    At this point, there's at least one fully-formed frame available in the device's
             //    frame buffer to transfer to the host. Reserve an AVDataBuffer to "produce", and
             //    use it in the next transfer from the device...
@@ -435,6 +441,18 @@ void NTV2Capture::CaptureFrames (void)
 
 }    //    CaptureFrames
 
+
+/**
+    @brief    log the buffer status
+**/
+void NTV2Capture::LogBufferState(ULWord cardBufferFreeSlots)
+{
+    float usedCircBufferPercent = (float)(mAVCircularBuffer.GetCircBufferCount() * 100) / (float)CIRCULAR_BUFFER_SIZE;
+    float userCardBufferPercent = (float)((ON_DEVICE_BUFFER_SIZE - cardBufferFreeSlots) * 100) / (float)ON_DEVICE_BUFFER_SIZE;
+
+    BufferStatus::AddSample(BufferStatus::CaptureCircBuffer, usedCircBufferPercent);
+    BufferStatus::AddSample(BufferStatus::CaptureCardBuffer, userCardBufferPercent);
+}
 
 //////////////////////////////////////////////
 

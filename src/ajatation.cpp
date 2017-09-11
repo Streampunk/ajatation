@@ -30,64 +30,65 @@
 #include <comdef.h>
 #endif
 
+#include "ajabase/system/info.h"
 #include "Capture.h"
 #include "Playback.h"
+#include "AjaDevice.h"
 
 using namespace v8;
 
-NAN_METHOD(deviceSdkVersion) {
+void PrintSystemInfo()
+{
+    cout << "AJA Device System Info:" << endl;
+    AJASystemInfo info;
 
-  //TODO Implement properly
+    for(uint32_t tag = 0; tag < (uint32_t)AJA_SystemInfoTag_LAST; tag++)
+    {
+        string label;
+        string value;
+
+        info.GetLabel(static_cast<AJASystemInfoTag>(tag), label);
+        info.GetValue(static_cast<AJASystemInfoTag>(tag), value);
+        
+        cout << "    " << label << ": " << value << endl;
+    }
+}
+
+NAN_METHOD(deviceSdkVersion) 
+{
+  UWord major(0);
+  UWord minor(0);
+  UWord point(0);
+  UWord build(0);
 
   char sdkVer [80];
-  int    dlVerMajor, dlVerMinor, dlVerPoint;
 
-  dlVerMajor = 0;
-  dlVerMinor = 0;
-  dlVerPoint = 0;
-
-  sprintf_s(sdkVer, "TODO: SDK API version: %d.%d.%d", dlVerMajor, dlVerMinor, dlVerPoint);
+  if(AjaDevice::GetDriverVersion(major, minor, point,build))
+  {
+    sprintf_s(sdkVer, "Aja Driver Version: %d.%d.%d.%d", major, minor, point,build);
+  }
+  else
+  {
+    sprintf_s(sdkVer, "Aja Driver Version: Unavailable - ERROR");
+  }
 
   info.GetReturnValue().Set(Nan::New(sdkVer).ToLocalChecked());
 }
 
-NAN_METHOD(GetFirstDevice) {
-  //IDeckLinkIterator* deckLinkIterator;
-  //HRESULT    result;
-  //IDeckLinkAPIInformation *deckLinkAPIInformation;
-  //IDeckLink* deckLink;
-  //#ifdef WIN32
-  //CoCreateInstance(CLSID_CDeckLinkIterator, NULL, CLSCTX_ALL, IID_IDeckLinkIterator, (void**)&deckLinkIterator);
-  //#else
-  //deckLinkIterator = CreateDeckLinkIteratorInstance();
-  //#endif
-  //result = deckLinkIterator->QueryInterface(IID_IDeckLinkAPIInformation, (void**)&deckLinkAPIInformation);
-  //if (result != S_OK) {
-  //  Nan::ThrowError("Error connecting to DeckLinkAPI.");
-  //}
-  //if (deckLinkIterator->Next(&deckLink) != S_OK) {
-  //  info.GetReturnValue().SetUndefined();
-  //  return;
-  //}
-  #ifdef WIN32
-  //BSTR deviceNameBSTR = NULL;
-  //result = deckLink->GetModelName(&deviceNameBSTR);
-  //if (result == S_OK) {
-    //_bstr_t deviceName(deviceNameBSTR, false);
-    info.GetReturnValue().Set(Nan::New((char*) "TODO - proper device iteration").ToLocalChecked());
-    return;
-  //}
-  #elif __APPLE__
-  CFStringRef deviceNameCFString = NULL;
-  result = deckLink->GetModelName(&deviceNameCFString);
-  if (result == S_OK) {
-    char deviceName [64];
-    CFStringGetCString(deviceNameCFString, deviceName, sizeof(deviceName), kCFStringEncodingMacRoman);
-    info.GetReturnValue().Set(Nan::New(deviceName).ToLocalChecked());
-    return;
+NAN_METHOD(getFirstDevice) {
+  uint32_t numDevices;
+  uint32_t firstDeviceIndex;
+  string deviceIdentifier;
+  uint64_t deviceSerialNumber;
+
+  if(AjaDevice::GetFirstDevice(numDevices, &firstDeviceIndex, &deviceIdentifier, &deviceSerialNumber))
+  {
+    info.GetReturnValue().Set(Nan::New(deviceIdentifier).ToLocalChecked());
   }
-  #endif
-  info.GetReturnValue().SetUndefined();
+  else
+  {
+    info.GetReturnValue().SetUndefined();
+  }
 }
 
 
@@ -112,7 +113,7 @@ NAN_METHOD(GetFirstDevice) {
 
 NAN_MODULE_INIT(Init) {
   Nan::Export(target, "deviceSdkVersion", deviceSdkVersion);
-  Nan::Export(target, "getFirstDevice", GetFirstDevice);
+  Nan::Export(target, "getFirstDevice", getFirstDevice);
   //streampunk::Capture::Init(target);
   streampunk::Playback::Init(target);
   streampunk::Capture::Init(target);

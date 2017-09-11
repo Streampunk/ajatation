@@ -30,6 +30,7 @@ limitations under the License.
 #include "ajabase/system/process.h"
 #include <algorithm>
 #include "utils.h"
+#include "BufferStatus.h"
 
 #ifdef DEBUG_OUTPUT
 #include <iostream>
@@ -64,7 +65,9 @@ static const uint32_t    AUDIOBYTES_MAX_96K    (401 * 1024);
 static const ULWord        kAppSignature    (AJA_FOURCC ('S','T','P','K'));
 
 const unsigned int ON_DEVICE_BUFFER_SIZE(7);/// Number of device buffers to allocate
-const unsigned int TARGET_FILL_LEVEL((ON_DEVICE_BUFFER_SIZE + CIRCULAR_BUFFER_SIZE) / 2);
+const unsigned int TOTAL_BUFFER_SIZE(ON_DEVICE_BUFFER_SIZE + CIRCULAR_BUFFER_SIZE);/// Number of device buffers to allocate
+const unsigned int TARGET_FILL_LEVEL(TOTAL_BUFFER_SIZE / 2);
+const unsigned int BUFFER_PRE_FILL_MARGIN(2);
 
 NTV2Player::NTV2Player (const AjaDevice::InitParams* initParams,
                         const string &               inDeviceSpecifier,
@@ -107,7 +110,8 @@ NTV2Player::NTV2Player (const AjaDevice::InitParams* initParams,
         mScheduleFrameCallback       (NULL),
         mAncType                     (inSendHDRType),
         mInitParams                  (initParams),
-        mEnableTestPatternFill       (false)
+        mEnableTestPatternFill       (false),
+        mOutputStarted               (false)
 {
     ::memset (mAVHostBuffer, 0, sizeof (mAVHostBuffer));
 }
@@ -221,38 +225,35 @@ AJAStatus NTV2Player::Init (void)
 
 AJAStatus NTV2Player::SetUpVideo ()
 {
-    // TEST!!!
-    if(mInitParams->doMultiChannel)
+    if (!mDeviceRef) return AJA_STATUS_INITIALIZE;
+        
+    if (mVideoFormat == NTV2_FORMAT_UNKNOWN)
+        mDeviceRef->GetVideoFormat(&mVideoFormat, NTV2_CHANNEL1);
+        
+    if (!::NTV2DeviceCanDoVideoFormat (mDeviceID, mVideoFormat))
+        {cerr << "## ERROR:  This device cannot handle '" << ::NTV2VideoFormatToString (mVideoFormat) << "'" << endl;  return AJA_STATUS_UNSUPPORTED;}
+
+    //    Configure the device to handle the requested video format...
+    mDeviceRef->SetVideoFormat(false, mVideoFormat, false, false, mOutputChannel);
+
+    if (!::NTV2DeviceCanDo3GLevelConversion (mDeviceID) && mDoLevelConversion && ::IsVideoFormatA (mVideoFormat))
+        mDoLevelConversion = false;
+    if (mDoLevelConversion)
+        mDeviceRef->SetSDIOutLevelAtoLevelBConversion(mOutputChannel, mDoLevelConversion);
+        
+    //    Set the frame buffer pixel format for all the channels on the device.
+    //    If the device doesn't support it, fall back to 8-bit YCbCr...
+    if (!::NTV2DeviceCanDoFrameBufferFormat (mDeviceID, mPixelFormat))
     {
-        if (!mDeviceRef) return AJA_STATUS_INITIALIZE;
-        
-        if (mVideoFormat == NTV2_FORMAT_UNKNOWN)
-            mDeviceRef->GetVideoFormat(&mVideoFormat, NTV2_CHANNEL1);
-        
-        if (!::NTV2DeviceCanDoVideoFormat (mDeviceID, mVideoFormat))
-            {cerr << "## ERROR:  This device cannot handle '" << ::NTV2VideoFormatToString (mVideoFormat) << "'" << endl;  return AJA_STATUS_UNSUPPORTED;}
-
-        //    Configure the device to handle the requested video format...
-        mDeviceRef->SetVideoFormat(mVideoFormat, false, false, mOutputChannel);
-
-        if (!::NTV2DeviceCanDo3GLevelConversion (mDeviceID) && mDoLevelConversion && ::IsVideoFormatA (mVideoFormat))
-            mDoLevelConversion = false;
-        if (mDoLevelConversion)
-            mDeviceRef->SetSDIOutLevelAtoLevelBConversion(mOutputChannel, mDoLevelConversion);
-        
-        //    Set the frame buffer pixel format for all the channels on the device.
-        //    If the device doesn't support it, fall back to 8-bit YCbCr...
-        if (!::NTV2DeviceCanDoFrameBufferFormat (mDeviceID, mPixelFormat))
-        {
-            cerr    << "## NOTE:  Device cannot handle '" << ::NTV2FrameBufferFormatString (mPixelFormat) << "' -- using '"
-                    << ::NTV2FrameBufferFormatString (NTV2_FBF_8BIT_YCBCR) << "' instead" << endl;
-            mPixelFormat = NTV2_FBF_8BIT_YCBCR;
-        }
-
-        mDeviceRef->SetFrameBufferFormat(mOutputChannel, mPixelFormat);
-
-        SetReferenceIfNone();
+        cerr    << "## NOTE:  Device cannot handle '" << ::NTV2FrameBufferFormatString (mPixelFormat) << "' -- using '"
+                << ::NTV2FrameBufferFormatString (NTV2_FBF_8BIT_YCBCR) << "' instead" << endl;
+        mPixelFormat = NTV2_FBF_8BIT_YCBCR;
     }
+
+    mDeviceRef->SetFrameBufferFormat(mOutputChannel, mPixelFormat);
+
+    mDeviceRef->SetReference(false, NTV2_REFERENCE_FREERUN);
+
     mDeviceRef->EnableChannel(mOutputChannel);
 
     if (mEnableVanc && !::IsRGBFormat (mPixelFormat) && NTV2_IS_HD_VIDEO_FORMAT (mVideoFormat))
@@ -277,28 +278,6 @@ AJAStatus NTV2Player::SetUpVideo ()
     return AJA_STATUS_SUCCESS;
 
 }    //    SetUpVideo
-
-
-void NTV2Player::SetReferenceIfNone()
-{
-    NTV2ReferenceSource reference(NTV2_REFERENCE_INVALID);
-
-    mDeviceRef->GetReference(&reference);
-
-    switch (reference)
-    {
-        case NTV2_REFERENCE_EXTERNAL:
-        case NTV2_REFERENCE_FREERUN:
-        case NTV2_REFERENCE_ANALOG_INPUT:
-        case NTV2_REFERENCE_HDMI_INPUT:
-            cout << "## Setting reference to Free Run" << endl;
-            mDeviceRef->SetReference(NTV2_REFERENCE_FREERUN);
-            break;
-        default:
-            cout << "## Not setting output reference" << endl;
-            break;
-    }
-}
 
 
 AJAStatus NTV2Player::SetUpAudio ()
@@ -502,8 +481,6 @@ void NTV2Player::PlayFrames (void)
     default:    break;
     }
 
-    mDeviceRef->AutoCirculateStart(mOutputChannel);    //    Start it running
-
     while (!mGlobalQuit)
     {
         AUTOCIRCULATE_STATUS    outputStatus;
@@ -512,9 +489,9 @@ void NTV2Player::PlayFrames (void)
         ULWord numAvailableFrames = outputStatus.GetNumAvailableOutputFrames();
 
         //    Check if there's room for another frame on the card...
-        if (numAvailableFrames > 1)
+        if (numAvailableFrames > 1 && CheckOutputReady())
         {
-            SmoothBuffer(numAvailableFrames);
+            LogBufferState(numAvailableFrames);
 
             //    Wait for the next frame to become ready to "consume"...
             AVDataBuffer *    playData    (mAVCircularBuffer.StartConsumeNextBuffer ());
@@ -532,27 +509,30 @@ void NTV2Player::PlayFrames (void)
 
                 LOG_BUFFER_STATE("Just added to card, requesting next frame");
 
-                if (mScheduleFrameCallback)
-                {
-                    // Decrement frames as we've just added one
-                    --numAvailableFrames;
-
-                    // Request enough frames to fill the buffer
-                    // NOTE: this approach keeps the C++ to JS interface simple: i.e. one callback per request
-                    // for a new frame; rather than sending back the number of required frames in the callback,
-                    // which would change the interface compared with other video cards.
-                    // As this only requests frames when the on-card buffer is full, we should never get into the
-                    // situation where the input buffer fills up and frames need to be dropped; as there is an
-                    // additional circular buffer in front of the on-card buffer to provide extra tolerance.
-                    for (uint32_t i = 0; i < numAvailableFrames; i++)
-                    {
-                        mScheduleFrameCallback(mScheduleFrameCallbackContext);
-                    }
-                }
+                // Decrement frames as we've just added one
+                --numAvailableFrames;
             }
         }
         else
+        {
             mDeviceRef->WaitForOutputVerticalInterrupt(mOutputChannel);
+        }
+
+        if (mScheduleFrameCallback)
+        {
+
+            // Request enough frames to fill the buffer
+            // NOTE: this approach keeps the C++ to JS interface simple: i.e. one callback per request
+            // for a new frame; rather than sending back the number of required frames in the callback,
+            // which would change the interface compared with other video cards.
+            // As this only requests frames when the on-card buffer is full, we should never get into the
+            // situation where the input buffer fills up and frames need to be dropped; as there is an
+            // additional circular buffer in front of the on-card buffer to provide extra tolerance.
+            for (uint32_t i = 0; i < numAvailableFrames; i++)
+            {
+                mScheduleFrameCallback(mScheduleFrameCallbackContext);
+            }
+        }
     }    //    loop til quit signaled
 
     //    Stop AutoCirculate...
@@ -562,18 +542,31 @@ void NTV2Player::PlayFrames (void)
 }    //    PlayFrames
 
 
-/**
-    @brief    Try to keep the input buffer reasonably stocked by delaying the output if the buffer is badly depleted
-**/
-void NTV2Player::SmoothBuffer(ULWord cardBufferFreeSlots)
+void NTV2Player::LogBufferState(ULWord cardBufferFreeSlots)
 {
-    auto unused_frames = (CIRCULAR_BUFFER_SIZE - mAVCircularBuffer.GetCircBufferCount()) + cardBufferFreeSlots;
+    float usedCircBufferPercent = (float)(mAVCircularBuffer.GetCircBufferCount() * 100) / (float)CIRCULAR_BUFFER_SIZE;
+    float userCardBufferPercent = (float)((ON_DEVICE_BUFFER_SIZE - cardBufferFreeSlots) * 100) / (float)ON_DEVICE_BUFFER_SIZE;
 
-    //if(unused_frames > TARGET_FILL_LEVEL)
-    //{
-    //    mDeviceRef->WaitForOutputVerticalInterrupt(mOutputChannel);
-    //    mDeviceRef->WaitForOutputVerticalInterrupt(mOutputChannel);
-    //}
+    BufferStatus::AddSample(BufferStatus::PlaybackCircBuffer, usedCircBufferPercent);
+    BufferStatus::AddSample(BufferStatus::PlaybackCardBuffer, userCardBufferPercent);
+}
+
+
+
+
+bool NTV2Player::CheckOutputReady()
+{
+    if(mOutputStarted == false)
+    {
+        // If we're nearly full, start the output flowing
+        if((CIRCULAR_BUFFER_SIZE - mAVCircularBuffer.GetCircBufferCount()) < BUFFER_PRE_FILL_MARGIN)
+        {
+            mDeviceRef->AutoCirculateStart(mOutputChannel);    //    Start it running
+            mOutputStarted = true;
+        }
+    }
+
+    return mOutputStarted;
 }
 
 

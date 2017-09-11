@@ -26,6 +26,7 @@ namespace streampunk {
 
 AjaDevice::CNTV2Card_Factory AjaDevice::NTV2Card_Factory = AjaDevice::DefaultCNTV2CardFactory;
 const string AjaDevice::DEFAULT_DEVICE_SPECIFIER = "0";
+unique_ptr<CNTV2DeviceScanner> AjaDevice::deviceScanner_;
 
 const AjaDevice::InitParams DEFAULT_INIT_PARAMS = {
     false,                          // Multi-channel
@@ -78,6 +79,91 @@ void AjaDevice::Ref::Release()
     if (ref_)
     {
         AjaDevice::ReleaseRef(ref_);
+    }
+}
+
+
+// Return device information - each parameter is filled in if a non-null pointer is supplied
+bool AjaDevice::GetFirstDevice(uint32_t& numDevices, uint32_t* index, std::string* deviceIdentifier, uint64_t* deviceSerialNumber)
+{
+    bool success(false);
+
+    if(!deviceScanner_)
+    {
+        deviceScanner_.reset(new CNTV2DeviceScanner());
+    }
+
+    if(deviceScanner_)
+    {
+        DumpDeviceInfo();
+
+        auto deviceInfoList = deviceScanner_->GetDeviceInfoList();
+
+        numDevices = deviceInfoList.size();
+
+        auto itDevices = deviceInfoList.begin();
+
+        if(itDevices != deviceInfoList.end())
+        {
+            if(index)
+            {
+                *index = itDevices->deviceIndex;
+            }
+
+            if(deviceIdentifier)
+            {
+                *deviceIdentifier = itDevices->deviceIdentifier;
+            }
+
+            if(deviceSerialNumber)
+            {
+                *deviceSerialNumber = itDevices->deviceSerialNumber;
+            }
+
+            success = true;
+        }
+    }
+
+    return success;
+}
+
+
+// Return the driver version number
+bool AjaDevice::GetDriverVersion(UWord& major, UWord& minor, UWord& point, UWord& build)
+{
+    bool success(false);
+
+    CNTV2Card tempCard;
+
+    auto status = CNTV2DeviceScanner::GetFirstDeviceFromArgument("0", tempCard);
+
+
+    if(AJA_SUCCESS((int)status))
+    {
+        success = tempCard.GetDriverVersionComponents(major, minor, point, build);
+    }
+
+    return success;
+}
+
+
+void AjaDevice::DumpDeviceInfo()
+{
+    assert(deviceScanner_);
+
+    cout << "AJA Device Info: " << endl;
+
+    auto deviceInfoList = deviceScanner_->GetDeviceInfoList();
+    auto itDevices = deviceInfoList.begin();
+
+    while(itDevices != deviceInfoList.end())
+    {
+        cout << "DeviceId:             " << itDevices->deviceID << endl;
+        cout << "Device Index:         " << itDevices->deviceIndex << endl;
+        cout << "Device Serial Number: " << itDevices->deviceSerialNumber << endl;
+        cout << "Device Identifier:    " << itDevices->deviceIdentifier << endl;
+
+        ++itDevices;
     }
 }
 
@@ -203,7 +289,7 @@ AJAStatus AjaDevice::Initialize(const InitParams*  initParams)
         return AJA_STATUS_FAIL;
     }
 
-    unique_ptr<CNTV2Card> tempDevice(NTV2Card_Factory());
+    unique_ptr<CNTV2SharedCard> tempDevice(NTV2Card_Factory());
 
     if (!tempDevice)
     {
