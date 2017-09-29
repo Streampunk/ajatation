@@ -21,11 +21,12 @@ var readdir = H.wrapCallback(fs.readdir);
 var readFile = H.wrapCallback(fs.readFile);
 var writeFile = H.wrapCallback(fs.writeFile);
 
-var playback = new ajatation.Playback(0, ajatation.bmdModeHD1080i50, ajatation.bmdFormat10BitYUV);
+var playback = new ajatation.Playback(0, ajatation.bmdModeHD1080i50, ajatation.bmdFormat8BitYUV);  // was ajatation.bmdFormat10BitYUV for non-typhoon code
 
 var rootFolder = "E:/media/EBU_test_sets/filexchange.ebu.ch/EBU test sets - Creative Commons (BY-NC-ND)/HDTV test sequences/1080i25/";
 
 var material = {
+  typhoon: "C:/Users/zztop/Videos/TyphoonTest",
   queen: "C:/Users/zztop/Videos/queen2",
   sheep: "F:/media/streampunk/sheep",
   tree: "F:/media/streampunk/tree",

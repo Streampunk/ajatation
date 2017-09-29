@@ -148,7 +148,8 @@ function bmCodeToInt (s) {
 }
 
 function intToBMCode(i) {
-  var b = Buffer.allocUnsafe(4).writeUInt32(i, 0);
+  var b = Buffer.allocUnsafe(4)
+  b.writeUInt32BE(i, 0);
   return b.toString();
 }
 
