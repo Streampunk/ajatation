@@ -304,7 +304,6 @@ NAUV_WORK_CB(Playback::FrameCallback) {
   uv_mutex_lock(&playback->padlock);
   if (!playback->playbackCB_.IsEmpty()) {
     Nan::Callback cb(Nan::New(playback->playbackCB_));
-    //printf("AJATATION: Sending callback: result = %d\n", playback->result_);
     v8::Local<v8::Value> argv[1] = { Nan::New(playback->result_) };
     cb.Call(1, argv);
   } else {
