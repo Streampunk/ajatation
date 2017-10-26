@@ -148,6 +148,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\src\AjaDevice.h" />
+    <ClInclude Include="..\..\..\src\AudioTransform.h" />
     <ClInclude Include="..\..\..\src\BufferStatus.h" />
     <ClInclude Include="..\..\..\src\Capture.h" />
     <ClInclude Include="..\..\..\src\gen2ajaTypeMaps.h" />

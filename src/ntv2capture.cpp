@@ -12,10 +12,6 @@
 #include "ajabase/system/systemtime.h"
 #include "BufferStatus.h"
 
-#define NTV2_AUDIOSIZE_MAX    (401 * 1024)
-#define NTV2_ANCSIZE_MAX    (0x2000)
-
-
 static const ULWord    kAppSignature    AJA_FOURCC('S', 'T', 'P', 'K');
 
 const unsigned int ON_DEVICE_BUFFER_SIZE(7);/// Number of device buffers to allocate

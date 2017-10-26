@@ -18,6 +18,10 @@
 #include "ajabase/system/thread.h"
 #include "AjaDevice.h"
 
+#define NTV2_AUDIOSIZE_MAX (401 * 1024)
+#define NTV2_ANCSIZE_MAX   (0x2000)
+
+
 /**
     @brief    Instances of me capture frames in real time from a video signal provided to an input of an AJA device.
 **/

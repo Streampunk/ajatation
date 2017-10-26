@@ -302,7 +302,14 @@ NAUV_WORK_CB(Capture::FrameCallback) {
 
     if (nextFrame->fAudioBuffer != nullptr && capture->audioEnabled_ == true)
     {
-        ba = Nan::CopyBuffer(reinterpret_cast<char*>(nextFrame->fAudioBuffer), nextFrame->fAudioBufferSize).ToLocalChecked();
+        // Transform the output buffer into the desired number of channels - currently this is 2
+        const char* audioTransformBuffer(nullptr);
+        uint32_t audioTransformBufferSize(0);
+
+        tie(audioTransformBuffer, audioTransformBufferSize) = 
+            capture->audioTransform.Transform(reinterpret_cast<char*>(nextFrame->fAudioBuffer), nextFrame->fAudioBufferSize, 16, 2);
+
+        ba = Nan::CopyBuffer(audioTransformBuffer, audioTransformBufferSize).ToLocalChecked();
     }
 
     capture->capture_->UnlockFrame();

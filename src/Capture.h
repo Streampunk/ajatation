@@ -28,6 +28,7 @@
 #include <memory>
 
 #include "ntv2capture.h"
+#include "AudioTransform.h"
 
 namespace streampunk {
 
@@ -78,6 +79,8 @@ private:
   //uint32_t width_;
   //uint32_t height_;
   bool audioEnabled_;
+
+  AudioTransform audioTransform;
 
   // uint32_t sampleByteFactor_;
   Nan::Persistent<v8::Function> captureCB_;
