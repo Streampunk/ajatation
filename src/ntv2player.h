@@ -23,6 +23,7 @@ limitations under the License.
 #ifndef _NTV2PLAYER_H
 #define _NTV2PLAYER_H
 
+#include <atomic>
 #include "ntv2enums.h"
 #include "ntv2devicefeatures.h"
 #include "ntv2devicescanner.h"
@@ -134,17 +135,17 @@ class NTV2Player
         /**
         @brief    Add a frame to the frame buffer, to be played out in its turn.
         @param[in]    videoData            pointer to the video frame to queue.
-        @param[in]    videoDataLength        length of the video data in bytes.
+        @param[in]    videoDataLength      length of the video data in bytes.
         @param[in]    audioData            pointer to the audio frame to queue.
-        @param[in]    audioDataLength        length of the audio data in bytes.
-        @param[out]    unusedFrames        If not null, receives the number of unused frames that can be written to.
+        @param[in]    audioDataLength      length of the audio data in bytes.
+        @param[out]   usedFrames           If not null, receives the number of buffered frames.
         **/
         virtual bool ScheduleFrame(
             const char* videoData,
             const size_t videoDataLength,
             const char* audioData,
             const size_t audioDataLength,
-            uint32_t* unusedFrames = nullptr);
+            uint32_t*    usedFrames = nullptr);
 
         //    Protected Instance Methods
     protected:
@@ -227,6 +228,12 @@ class NTV2Player
         **/
         virtual bool            CheckOutputReady();
 
+        /**
+            @brief    Get/Set the Used Buffers counter atomically
+        **/
+        uint32_t                GetUsedBuffers(void) { return mBufferedFrames.load(); }
+        void                    SetUsedBuffers(uint32_t numUsedBuffers) { mBufferedFrames.store(numUsedBuffers); }
+
 #ifdef DEBUG_OUTPUT
         void                    LogBufferState(const char* location);
 #define LOG_BUFFER_STATE(LOCATION) LogBufferState(LOCATION)
@@ -260,8 +267,6 @@ class NTV2Player
             @return    The number of the RP188 DBB register to use for the given output destination.
         **/
         static ULWord            GetRP188RegisterForOutput (const NTV2OutputDestination inOutputSource);
-
-
 
     //    Private Member Data
     private:
@@ -308,6 +313,8 @@ class NTV2Player
         const AjaDevice::InitParams* mInitParams;
         bool                         mEnableTestPatternFill;
         bool                         mOutputStarted;
+        std::atomic<uint32_t>        mBufferedFrames;
+
 };    //    NTV2Player
 
 #endif    //    _NTV2PLAYER_H

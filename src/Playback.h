@@ -68,7 +68,7 @@ private:
     bool shutdownNtv2Player();
     bool play();
     bool stop();
-    bool scheduleFrame(const char* data, const size_t length);
+    bool scheduleFrame(const char* data, const size_t length, uint32_t& bufferedFrames);
 
     void scheduledFrameCompleted();
     static void _scheduledFrameCompleted(void* context);

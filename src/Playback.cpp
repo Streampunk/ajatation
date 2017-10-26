@@ -135,7 +135,11 @@ NAN_METHOD(Playback::ScheduleFrame) {
   char* bufData = node::Buffer::Data(bufObj);
   size_t bufLength = node::Buffer::Length(bufObj);
 
-  obj->scheduleFrame(bufData, bufLength);
+  uint32_t bufferedFrames(0);
+
+  obj->scheduleFrame(bufData, bufLength, bufferedFrames);
+
+  info.GetReturnValue().Set(Nan::New<v8::Uint32>(bufferedFrames));
 }
 
 
@@ -243,13 +247,13 @@ bool Playback::stop()
 }
 
 
-bool Playback::scheduleFrame(const char* data, const size_t length)
+bool Playback::scheduleFrame(const char* data, const size_t length, uint32_t& bufferedFrames)
 {
     bool success = false;
 
     if (player_)
     {
-        success = player_->ScheduleFrame(data, length, nullptr, 0);
+        success = player_->ScheduleFrame(data, length, nullptr, 0, &bufferedFrames);
     }
 
     return success;

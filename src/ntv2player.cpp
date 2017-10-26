@@ -111,7 +111,8 @@ NTV2Player::NTV2Player (const AjaDevice::InitParams* initParams,
         mAncType                     (inSendHDRType),
         mInitParams                  (initParams),
         mEnableTestPatternFill       (false),
-        mOutputStarted               (false)
+        mOutputStarted               (false),
+        mBufferedFrames              (0)
 {
     ::memset (mAVHostBuffer, 0, sizeof (mAVHostBuffer));
 }
@@ -544,8 +545,14 @@ void NTV2Player::PlayFrames (void)
 
 void NTV2Player::LogBufferState(ULWord cardBufferFreeSlots)
 {
-    float usedCircBufferPercent = (float)(mAVCircularBuffer.GetCircBufferCount() * 100) / (float)CIRCULAR_BUFFER_SIZE;
-    float userCardBufferPercent = (float)((ON_DEVICE_BUFFER_SIZE - cardBufferFreeSlots) * 100) / (float)ON_DEVICE_BUFFER_SIZE;
+    auto cardBufferUsedSlots = ON_DEVICE_BUFFER_SIZE - cardBufferFreeSlots;
+    auto circBufferUsedSlots = mAVCircularBuffer.GetCircBufferCount();
+
+    // Store the total number of used buffer slots to return from the producer thread
+    SetUsedBuffers(cardBufferUsedSlots + circBufferUsedSlots);
+
+    float usedCircBufferPercent = (float)(circBufferUsedSlots * 100) / (float)CIRCULAR_BUFFER_SIZE;
+    float userCardBufferPercent = (float)(cardBufferUsedSlots * 100) / (float)ON_DEVICE_BUFFER_SIZE;
 
     BufferStatus::AddSample(BufferStatus::PlaybackCircBuffer, usedCircBufferPercent);
     BufferStatus::AddSample(BufferStatus::PlaybackCardBuffer, userCardBufferPercent);
@@ -679,17 +686,17 @@ static const double    gAmplitudes []    =    {    0.10, 0.15,        0.20, 0.25
 /**
 @brief    Add a frame to the frame buffer, to be played out in its turn.
 @param[in]    videoData            pointer to the video frame to queue.
-@param[in]    videoDataLength        length of the video data in bytes.
+@param[in]    videoDataLength      length of the video data in bytes.
 @param[in]    audioData            pointer to the audio frame to queue.
-@param[in]    audioDataLength        length of the audio data in bytes.
-@param[out]    unusedFrames        If not null, receives the number of unused frames that can be written to.
+@param[in]    audioDataLength      length of the audio data in bytes.
+@param[out]   usedFrames          If not null, receives the number of buffered frames.
 **/
 bool NTV2Player::ScheduleFrame(
     const char* videoData,
     const size_t videoDataLength,
     const char* audioData,
     const size_t audioDataLength,
-    uint32_t* unusedFrames)
+    uint32_t* usedFrames)
 {
     bool addedFrame = false;
 
@@ -741,9 +748,9 @@ bool NTV2Player::ScheduleFrame(
     }
 #endif
 
-    if (unusedFrames != nullptr)
+    if (usedFrames != nullptr)
     {
-        *unusedFrames = CIRCULAR_BUFFER_SIZE - mAVCircularBuffer.GetCircBufferCount();
+        *usedFrames = GetUsedBuffers();
     }
 
     return addedFrame;
