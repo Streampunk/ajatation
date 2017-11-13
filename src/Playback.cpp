@@ -40,8 +40,9 @@ inline Nan::Persistent<v8::Function> &Playback::constructor() {
   return myConstructor;
 }
 
-Playback::Playback(uint32_t deviceIndex, uint32_t displayMode, uint32_t pixelFormat)
+Playback::Playback(uint32_t deviceIndex, uint32_t channelNumber, uint32_t displayMode, uint32_t pixelFormat)
 :   deviceIndex_(deviceIndex), 
+    channelNumber_(channelNumber), 
     displayMode_(displayMode), 
     pixelFormat_(pixelFormat),
     result_(0)
@@ -160,9 +161,8 @@ bool Playback::initNtv2Player()
     const NTV2VideoFormat       videoFormat(getVideoFormat(displayMode_));
     const NTV2FrameBufferFormat pixelFormat(getPixelFormat(pixelFormat_));
 
-    uint32_t                    channelNumber(AjaDevice::DEFAULT_PLAYBACK_CHANNEL);                    //    Number of the channel to use
     int                         noAudio(0);                    //    Disable audio tone?
-    const NTV2Channel           channel(::GetNTV2ChannelForIndex(channelNumber - 1));
+    const NTV2Channel           channel(::GetNTV2ChannelForIndex(channelNumber_ - 1));
     const NTV2OutputDestination outputDest(::NTV2ChannelToOutputDestination(channel));
     int                         doMultiChannel(0);                    //    Enable multi-format?
     AJAAncillaryDataType        sendType = AJAAncillaryDataType_Unknown;

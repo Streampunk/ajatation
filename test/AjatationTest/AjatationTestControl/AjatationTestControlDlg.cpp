@@ -52,8 +52,8 @@ CAjatationTestControlDlg::CAjatationTestControlDlg(CWnd* pParent /*=NULL*/)
     control(CAjatationTestControlDlg::UpdateCallback, this)
     , captureDevice(0)
     , captureChannel(0)
-    , playbackDevice(0)
-    , playbackChannel(0)
+    , playbackDevice(1)
+    , playbackChannel(3)
     , capFramesReceived(0)
     , capBytesPerFrame(0)
     , capFramesAvailable(0)
@@ -223,7 +223,7 @@ void CAjatationTestControlDlg::OnBnClickedButtonStartCapture()
 
     if(!control.IsCapturing())
     {
-        control.StartCapture();
+        control.StartCapture(captureDevice, captureChannel);
     }
     else
     {
@@ -239,7 +239,7 @@ void CAjatationTestControlDlg::OnBnClickedButtonStartPlayback()
 
     if(!control.IsPlaying())
     {
-        control.StartPlayback();
+        control.StartPlayback(playbackDevice, playbackChannel);
     }
     else
     {

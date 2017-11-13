@@ -30,11 +30,11 @@ public:
     AjaController(UpdateCallback statusCallback, void* context);
     virtual ~AjaController();
 
-    bool StartCapture();
+    bool StartCapture(UINT32 deviceId, UINT32 channelId);
     bool StopCapture();
     bool IsCapturing();
 
-    bool StartPlayback();
+    bool StartPlayback(UINT32 deviceId, UINT32 channelId);
     bool StopPlayback();
     bool IsPlaying();
 

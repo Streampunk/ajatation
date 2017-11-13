@@ -38,7 +38,7 @@ public:
     static NAN_MODULE_INIT(Init);
 
 private:
-    explicit Playback(uint32_t deviceIndex = 0, uint32_t displayMode = 0, uint32_t pixelFormat = 0);
+    explicit Playback(uint32_t deviceIndex = 0, uint32_t channelNumber = 3, uint32_t displayMode = 0, uint32_t pixelFormat = 0);
     ~Playback();
 
     static NAN_METHOD(New);
@@ -77,6 +77,7 @@ private:
     NTV2FrameBufferFormat getPixelFormat(uint32_t genericPixelFormat);
 
     uint32_t deviceIndex_;
+    uint32_t channelNumber_;
     uint32_t displayMode_;
     uint32_t pixelFormat_;
 

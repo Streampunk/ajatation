@@ -28,8 +28,9 @@ inline Nan::Persistent<v8::Function> &Capture::constructor() {
   return myConstructor;
 }
 
-Capture::Capture(uint32_t deviceIndex, uint32_t displayMode, uint32_t pixelFormat) 
+Capture::Capture(uint32_t deviceIndex, uint32_t channelNumber, uint32_t displayMode, uint32_t pixelFormat) 
 : deviceIndex_(deviceIndex),
+  channelNumber_(channelNumber),
   displayMode_(displayMode), 
   genericPixelFormat_(pixelFormat),
   audioEnabled_(false)
@@ -191,7 +192,6 @@ bool Capture::initNtv2Capture()
         deviceSpec = buffer;
     }
 
-    uint32_t                     channelNumber(AjaDevice::DEFAULT_CAPTURE_CHANNEL);                    //    Number of the channel to use
     const NTV2FrameBufferFormat  pixelFormat(getPixelFormat(genericPixelFormat_));
     bool                         multiFormat(false); 
     bool                         captureAncilliaryData(false); 
@@ -202,7 +202,7 @@ bool Capture::initNtv2Capture()
 //    Instantiate the NTV2Capture object, using the specified AJA device...
     capture_.reset(new NTV2Capture(&DEFAULT_INIT_PARAMS,
         deviceSpec, true,                             //    With audio?
-        ::GetNTV2ChannelForIndex(channelNumber - 1),    //    Channel
+        ::GetNTV2ChannelForIndex(channelNumber_ - 1),    //    Channel
         pixelFormat,                                    //    Pixel format
         false,                                          //    Level A/B conversion?
         multiFormat,                                    //    Multi-format mode?

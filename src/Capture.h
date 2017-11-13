@@ -35,7 +35,7 @@ namespace streampunk {
 class Capture : public Nan::ObjectWrap
 {
 private:
-  explicit Capture(uint32_t deviceIndex = 0, uint32_t displayMode = 0, uint32_t pixelFormat = 0);
+  explicit Capture(uint32_t deviceIndex = 0, uint32_t channelNumber = 0, uint32_t displayMode = 0, uint32_t pixelFormat = 0);
   ~Capture();
 
   static NAN_METHOD(New);
@@ -74,6 +74,7 @@ private:
   static NAUV_WORK_CB(FrameCallback);
 
   uint32_t deviceIndex_;
+  uint32_t channelNumber_;
   uint32_t displayMode_;
   uint32_t genericPixelFormat_;
   //uint32_t width_;

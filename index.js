@@ -30,13 +30,21 @@ const EventEmitter = require('events');
 // var SegfaultHandler = require('../node-segfault-handler');
 // SegfaultHandler.registerHandler("crash.log");
 
-function Capture (deviceIndex, displayMode, pixelFormat) {
-  if (arguments.length !== 3 || typeof deviceIndex !== 'number' ||
-      typeof displayMode !== 'number' || typeof pixelFormat !== 'number' ) {
-    this.emit('error', new Error('Capture requires three number arguments: ' +
-      'index, display mode and pixel format'));
+function Capture (deviceIndex, channelNumber, displayMode, pixelFormat) {
+    console.log("Capture Args: " + arguments.length);
+    console.log("  deviceIndex: " + deviceIndex + " (" + typeof deviceIndex + ")");
+    console.log("  channelNumber: " + channelNumber + " (" + typeof channelNumber + ")");
+    console.log("  displayMode: " + displayMode + " (" + typeof displayMode + ")");
+    console.log("  pixelFormat: " + pixelFormat + " (" + typeof pixelFormat + ")");
+    if (arguments.length !== 4 || 
+      typeof deviceIndex !== 'number' ||
+      typeof channelNumber !== 'number' ||
+      typeof displayMode !== 'number' || 
+      typeof pixelFormat !== 'number' ) {
+    this.emit('error', new Error('Capture requires four number arguments: ' +
+      'index, channel, display mode and pixel format'));
   } else {
-    this.capture = new ajatatorNative.Capture(deviceIndex, displayMode, pixelFormat);
+    this.capture = new ajatatorNative.Capture(deviceIndex, channelNumber, displayMode, pixelFormat);
   }
   this.initialised = false;
   EventEmitter.call(this);
@@ -89,13 +97,21 @@ Capture.prototype.enableAudio = function (sampleRate, sampleType, channelCount) 
 }
 
 
-function Playback (deviceIndex, displayMode, pixelFormat) {
-  if (arguments.length !== 3 || typeof deviceIndex !== 'number' ||
-      typeof displayMode !== 'number' || typeof pixelFormat !== 'number' ) {
-    this.emit('error', new Error('Playback requires three number arguments: ' +
-      'index, display mode and pixel format'));
+function Playback (deviceIndex, channelNumber, displayMode, pixelFormat) {
+    console.log("Playback Args: " + arguments.length);
+    console.log("  deviceIndex: " + deviceIndex + " (" + typeof deviceIndex + ")");
+    console.log("  channelNumber: " + channelNumber + " (" + typeof channelNumber + ")");
+    console.log("  displayMode: " + displayMode + " (" + typeof displayMode + ")");
+    console.log("  pixelFormat: " + pixelFormat + " (" + typeof pixelFormat + ")");
+    if (arguments.length !== 4 || 
+      typeof deviceIndex !== 'number' ||
+      typeof channelNumber !== 'number' ||
+      typeof displayMode !== 'number' || 
+      typeof pixelFormat !== 'number' ) {
+    this.emit('error', new Error('Playback requires four number arguments: ' +
+      'index, channel, display mode and pixel format'));
   } else {
-    this.playback = new ajatatorNative.Playback(deviceIndex, displayMode, pixelFormat);
+    this.playback = new ajatatorNative.Playback(deviceIndex, channelNumber, displayMode, pixelFormat);
   }
   this.initialised = false;
   EventEmitter.call(this);
