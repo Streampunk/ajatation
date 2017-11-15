@@ -307,7 +307,7 @@ NAUV_WORK_CB(Capture::FrameCallback) {
         uint32_t audioTransformBufferSize(0);
 
         tie(audioTransformBuffer, audioTransformBufferSize) = 
-            capture->audioTransform.Transform(reinterpret_cast<char*>(nextFrame->fAudioBuffer), nextFrame->fAudioBufferSize, 16, 2);
+            capture->audioTransform.TransformFromCard(reinterpret_cast<char*>(nextFrame->fAudioBuffer), nextFrame->fAudioBufferSize, 16, 2);
 
         ba = Nan::CopyBuffer(audioTransformBuffer, audioTransformBufferSize).ToLocalChecked();
     }

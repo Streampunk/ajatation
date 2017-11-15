@@ -29,6 +29,7 @@
 #include <memory>
 
 #include "ntv2player.h"
+#include "AudioTransform.h"
 
 namespace streampunk {
 
@@ -80,6 +81,8 @@ private:
     uint32_t channelNumber_;
     uint32_t displayMode_;
     uint32_t pixelFormat_;
+
+    AudioTransform audioTransform;
 
     static const NTV2VideoFormat defaultVideoFormat_ = NTV2_FORMAT_1080i_5994;
     static const NTV2FrameBufferFormat defaultPixelFormat_ = NTV2_FBF_10BIT_YCBCR;

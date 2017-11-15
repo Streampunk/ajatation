@@ -133,13 +133,13 @@ Playback.prototype.start = function () {
   }
 }
 
-Playback.prototype.frame = function (f) {
+Playback.prototype.frame = function (fv, fa) {
   try {
     if (!this.initialised) {
       this.playback.init();
       this.initialised = true;
     }
-    var result = this.playback.scheduleFrame(f);
+    var result = this.playback.scheduleFrame(fv, fa);
     // console.log("*** playback.scheduleFrame", result);
     if (typeof result === 'string')
       throw new Error("Problem scheduling frame: " + result);

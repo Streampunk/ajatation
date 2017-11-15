@@ -197,8 +197,12 @@ AJAStatus NTV2Capture::SetupVideo (void)
 AJAStatus NTV2Capture::SetupAudio (void)
 {
     //    In multiformat mode, base the audio system on the channel...
-    if (mInitParams->doMultiChannel  &&  ::NTV2DeviceGetNumAudioSystems(mDeviceID) > 1  &&  UWord(mInputChannel) < ::NTV2DeviceGetNumAudioSystems(mDeviceID))
+    if (::NTV2DeviceGetNumAudioSystems(mDeviceID) > 1  &&  UWord(mInputChannel) < ::NTV2DeviceGetNumAudioSystems(mDeviceID))
         mAudioSystem = ::NTV2ChannelToAudioSystem (mInputChannel);
+
+    cout << "!!!!!!!Setting Up Audio for Channel " << mInputChannel << "!!!!!!!" << endl;
+    cout << "    mAudioSystem  = " << mAudioSystem << endl;
+    cout << "    embedded a in = " << ::NTV2ChannelToEmbeddedAudioInput(mInputChannel) << endl;
 
     //    Have the audio system capture audio from the designated device input (i.e., ch1 uses SDIIn1, ch2 uses SDIIn2, etc.)...
     mDeviceRef->SetAudioSystemInputSource(mAudioSystem, NTV2_AUDIO_EMBEDDED, ::NTV2ChannelToEmbeddedAudioInput(mInputChannel));
