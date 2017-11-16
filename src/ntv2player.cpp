@@ -69,6 +69,34 @@ const unsigned int TOTAL_BUFFER_SIZE(ON_DEVICE_BUFFER_SIZE + CIRCULAR_BUFFER_SIZ
 const unsigned int TARGET_FILL_LEVEL(TOTAL_BUFFER_SIZE / 2);
 const unsigned int BUFFER_PRE_FILL_MARGIN(2);
 
+#include <iostream>
+#include <fstream>
+void DumpAudioToFile(uint32_t* buffer, uint32_t bufferSize)
+{
+	ofstream myfile;
+
+	static bool started(false);
+
+	if (started)
+	{
+		myfile.open("C:\\Users\\DSI-User\\Documents\\out1.dat", ios::out | ios::app | ios::binary);
+	}
+	else
+	{
+		myfile.open("C:\\Users\\DSI-User\\Documents\\out1.dat", ios::out | ios::trunc | ios::binary);
+		started = true;
+	}
+
+	if (myfile.is_open())
+	{
+		myfile.write((char*)buffer, bufferSize);
+		myfile.close();
+	}
+
+
+}
+
+
 void DumpAudioInfo(const string &inDeviceSpecifier, char* message, bool audio, uint32_t* buffer, uint32_t bufferSize)
 {
     if(audio)
@@ -523,6 +551,8 @@ void NTV2Player::PlayFrames (void)
                 mOutputXferInfo.SetVideoBuffer (playData->fVideoBuffer, playData->fVideoBufferSize);
 
                 //DumpAudioInfo(mDeviceSpecifier, "Transferring to audio card: ", mWithAudio, playData->fAudioBuffer, playData->fAudioBufferSize);
+
+				DumpAudioToFile(playData->fAudioBuffer, playData->fAudioBufferSize);
 
                 mOutputXferInfo.SetAudioBuffer (mWithAudio ? playData->fAudioBuffer : NULL, mWithAudio ? playData->fAudioBufferSize : 0);
                 mOutputXferInfo.SetAncBuffers(fAncBuffer, NTV2_ANCSIZE_MAX, NULL, 0);

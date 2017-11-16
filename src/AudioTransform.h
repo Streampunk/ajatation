@@ -11,8 +11,8 @@ namespace streampunk
 class AudioTransform
 {
     static const uint32_t MAX_BUFFER_SIZE = NTV2_AUDIOSIZE_MAX;
-    static const uint32_t AUDIO_INPUT_SAMPLE_SIZE_BYTES = 4; // 24bit audio in 32bit buffers
-    static const uint32_t AUDIO_OUTPUT_SAMPLE_SIZE_BYTES = 3; // 24bit audio
+    static const uint32_t AUDIO_4BYTE_SAMPLE_SIZE_BYTES = 4; // 24bit audio in 32bit buffers
+    static const uint32_t AUDIO_3BYTE_SAMPLE_SIZE_BYTES = 3; // 24bit audio
 
 public:
 
@@ -27,7 +27,7 @@ public:
         assert(inputChannels == 16);
         assert(outputChannels == 2);
 
-        uint32_t strideBytes = inputChannels * AUDIO_INPUT_SAMPLE_SIZE_BYTES; // where stride is the distance between subsequent samples across all channels
+        uint32_t strideBytes = inputChannels * AUDIO_4BYTE_SAMPLE_SIZE_BYTES; // where stride is the distance between subsequent samples across all channels
 
         uint32_t numSamples = inputBufferSize / strideBytes;
         uint32_t bytesWritten = 0;
@@ -42,19 +42,19 @@ public:
             int sample = *(int *)readBuffer;
             sample = (sample & 0xFF000000) >> 24 | (sample & 0x00FF0000) >> 8 | (sample & 0x0000FF00) << 8 | (sample & 0x000000FF) << 24;
             sample = sample & 0x00FFFFFF;
-            memcpy_s(writeBuffer, MAX_BUFFER_SIZE - bytesWritten, (void *)&sample, AUDIO_OUTPUT_SAMPLE_SIZE_BYTES);
+            memcpy_s(writeBuffer, MAX_BUFFER_SIZE - bytesWritten, (void *)&sample, AUDIO_3BYTE_SAMPLE_SIZE_BYTES);
 
-            bytesWritten += AUDIO_OUTPUT_SAMPLE_SIZE_BYTES;
-            writeBuffer  += AUDIO_OUTPUT_SAMPLE_SIZE_BYTES;
+            bytesWritten += AUDIO_3BYTE_SAMPLE_SIZE_BYTES;
+            writeBuffer  += AUDIO_3BYTE_SAMPLE_SIZE_BYTES;
 
             // Right Channel
-            sample = *(int *)&readBuffer[AUDIO_INPUT_SAMPLE_SIZE_BYTES];
+            sample = *(int *)&readBuffer[AUDIO_4BYTE_SAMPLE_SIZE_BYTES];
             sample = (sample & 0xFF000000) >> 24 | (sample & 0x00FF0000) >> 8 | (sample & 0x0000FF00) << 8 | (sample & 0x000000FF) << 24;
             sample = sample & 0x00FFFFFF;
-            memcpy_s(writeBuffer, MAX_BUFFER_SIZE - bytesWritten, (void *)&sample, AUDIO_OUTPUT_SAMPLE_SIZE_BYTES);
+            memcpy_s(writeBuffer, MAX_BUFFER_SIZE - bytesWritten, (void *)&sample, AUDIO_3BYTE_SAMPLE_SIZE_BYTES);
 
-            bytesWritten += AUDIO_OUTPUT_SAMPLE_SIZE_BYTES;
-            writeBuffer  += AUDIO_OUTPUT_SAMPLE_SIZE_BYTES;
+            bytesWritten += AUDIO_3BYTE_SAMPLE_SIZE_BYTES;
+            writeBuffer  += AUDIO_3BYTE_SAMPLE_SIZE_BYTES;
             readBuffer   += strideBytes;
             bytesRead    += strideBytes;
         }
@@ -71,8 +71,8 @@ public:
         assert(inputChannels == 2);
         assert(outputChannels == 16);
 
-        uint32_t inputStrideBytes = inputChannels * AUDIO_INPUT_SAMPLE_SIZE_BYTES;
-        uint32_t outputStrideBytes = outputChannels * AUDIO_INPUT_SAMPLE_SIZE_BYTES; // where stride is the distance between subsequent samples across all channels
+        uint32_t inputStrideBytes = inputChannels * AUDIO_3BYTE_SAMPLE_SIZE_BYTES;
+        uint32_t outputStrideBytes = outputChannels * AUDIO_4BYTE_SAMPLE_SIZE_BYTES; // where stride is the distance between subsequent samples across all channels
 
         uint32_t numSamples = inputBufferSize / inputStrideBytes;
         uint32_t outputBufferSize = numSamples * outputStrideBytes;
@@ -89,14 +89,14 @@ public:
         {
             // Convert the 4bytes of each channel data into a 24 bit sample
             // Left Channel
-            int sample = *(int *)readBuffer;
-            sample = (sample & 0xFF000000) >> 24 | (sample & 0x00FF0000) >> 8 | (sample & 0x0000FF00) << 8 | (sample & 0x000000FF) << 24;
-            memcpy_s(writeBuffer, MAX_BUFFER_SIZE - bytesWritten, (void *)&sample, AUDIO_OUTPUT_SAMPLE_SIZE_BYTES);
+            int sample = (*(int *)readBuffer) & 0x00FFFFFF;
+			sample = (sample & 0xFF000000) >> 24 | (sample & 0x00FF0000) >> 8 | (sample & 0x0000FF00) << 8 | (sample & 0x000000FF) << 24;
+			memcpy_s(writeBuffer, MAX_BUFFER_SIZE - bytesWritten, (void *)&sample, AUDIO_4BYTE_SAMPLE_SIZE_BYTES);
 
             // Right Channel
-            sample = *(int *)&readBuffer[AUDIO_INPUT_SAMPLE_SIZE_BYTES];
-            sample = (sample & 0xFF000000) >> 24 | (sample & 0x00FF0000) >> 8 | (sample & 0x0000FF00) << 8 | (sample & 0x000000FF) << 24;
-            memcpy_s(&writeBuffer[AUDIO_OUTPUT_SAMPLE_SIZE_BYTES], MAX_BUFFER_SIZE - bytesWritten, (void *)&sample, AUDIO_OUTPUT_SAMPLE_SIZE_BYTES);
+			sample = (*(int *)&readBuffer[AUDIO_3BYTE_SAMPLE_SIZE_BYTES]) & 0xFFFFFF00;
+			sample = (sample & 0xFF000000) >> 24 | (sample & 0x00FF0000) >> 8 | (sample & 0x0000FF00) << 8 | (sample & 0x000000FF) << 24;
+			memcpy_s(&writeBuffer[AUDIO_4BYTE_SAMPLE_SIZE_BYTES], MAX_BUFFER_SIZE - bytesWritten, (void *)&sample, AUDIO_4BYTE_SAMPLE_SIZE_BYTES);
 
             bytesWritten += outputStrideBytes;
             writeBuffer  += outputStrideBytes;
