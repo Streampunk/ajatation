@@ -32,6 +32,9 @@ limitations under the License.
 #include "utils.h"
 #include "BufferStatus.h"
 
+// TEST
+//#include <time.h>
+
 #ifdef DEBUG_OUTPUT
 #include <iostream>
 #include <stdio.h>
@@ -69,6 +72,7 @@ const unsigned int TOTAL_BUFFER_SIZE(ON_DEVICE_BUFFER_SIZE + CIRCULAR_BUFFER_SIZ
 const unsigned int TARGET_FILL_LEVEL(TOTAL_BUFFER_SIZE / 2);
 const unsigned int BUFFER_PRE_FILL_MARGIN(2);
 
+/*
 #include <iostream>
 #include <fstream>
 void DumpAudioToFile(uint32_t* buffer, uint32_t bufferSize)
@@ -114,7 +118,7 @@ void DumpAudioInfo(const string &inDeviceSpecifier, char* message, bool audio, u
         cout << "!! NO AUDIO !!" << endl;
     }
 }
-
+*/
 
 NTV2Player::NTV2Player (const AjaDevice::InitParams* initParams,
                         const string &               inDeviceSpecifier,
@@ -544,6 +548,8 @@ void NTV2Player::PlayFrames (void)
             AVDataBuffer *    playData    (mAVCircularBuffer.StartConsumeNextBuffer ());
             if (playData)
             {
+                //cout << "!! TEST, " << clock() << ", , TX" << endl;
+
                 //    Include timecode in output signal...
                 mOutputXferInfo.SetOutputTimeCode (NTV2_RP188 (playData->fRP188Data), ::NTV2ChannelToTimecodeIndex (mOutputChannel));
 
@@ -552,7 +558,7 @@ void NTV2Player::PlayFrames (void)
 
                 //DumpAudioInfo(mDeviceSpecifier, "Transferring to audio card: ", mWithAudio, playData->fAudioBuffer, playData->fAudioBufferSize);
 
-				DumpAudioToFile(playData->fAudioBuffer, playData->fAudioBufferSize);
+                //DumpAudioToFile(playData->fAudioBuffer, playData->fAudioBufferSize);
 
                 mOutputXferInfo.SetAudioBuffer (mWithAudio ? playData->fAudioBuffer : NULL, mWithAudio ? playData->fAudioBufferSize : 0);
                 mOutputXferInfo.SetAncBuffers(fAncBuffer, NTV2_ANCSIZE_MAX, NULL, 0);
@@ -598,6 +604,10 @@ void NTV2Player::LogBufferState(ULWord cardBufferFreeSlots)
 {
     auto cardBufferUsedSlots = ON_DEVICE_BUFFER_SIZE - cardBufferFreeSlots;
     auto circBufferUsedSlots = mAVCircularBuffer.GetCircBufferCount();
+
+    // Test traces for capturing buffer state:
+    //cout << "!! TEST, " << clock() << ", " << cardBufferFreeSlots << ", " << cardBufferUsedSlots << ", " << circBufferUsedSlots << ", " << (cardBufferUsedSlots + circBufferUsedSlots) << endl;
+    //cout << "!! TEST: cardf=" << cardBufferFreeSlots << ", cardu=" << cardBufferUsedSlots << ", crcu=" << circBufferUsedSlots << ", tu=" << (cardBufferUsedSlots + circBufferUsedSlots) << endl;
 
     // Store the total number of used buffer slots to return from the producer thread
     SetUsedBuffers(cardBufferUsedSlots + circBufferUsedSlots);
@@ -757,6 +767,8 @@ bool NTV2Player::ScheduleFrame(
     LOG_BUFFER_STATE("Scheduling frame");
 
     AVDataBuffer* frameData(mAVCircularBuffer.StartProduceNextBuffer());
+
+    //cout << "!! TEST, " << clock() << ", RC, ," << endl;
 
     //  If no frame is available, wait and try again
     if (frameData)
