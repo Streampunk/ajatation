@@ -21,9 +21,9 @@ var readdir = H.wrapCallback(fs.readdir);
 var readFile = H.wrapCallback(fs.readFile);
 var writeFile = H.wrapCallback(fs.writeFile);
 
-var playback = new mac.Playback(0, mac.bmdModeHD1080i50, mac.bmdFormat10BitYUV);
+var playback = new mac.Playback(0, 3, mac.bmdModeHD1080i50, mac.bmdFormat10BitYUV);
 
-var rootFolder = "E:/media/EBU_test_sets/filexchange.ebu.ch/EBU test sets - Creative Commons (BY-NC-ND)/HDTV test sequences/1080i25/";
+var rootFolder = "C:/Users/DSI-User/Videos/";
 
 var material = {
   crowdrun: rootFolder + "crowdrun_1080i/crowdrun_1080i_0000",

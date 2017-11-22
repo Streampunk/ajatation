@@ -29,6 +29,7 @@
 #include <memory>
 
 #include "ntv2player.h"
+#include "AudioTransform.h"
 
 namespace streampunk {
 
@@ -68,7 +69,7 @@ private:
     bool shutdownNtv2Player();
     bool play();
     bool stop();
-    bool scheduleFrame(const char* data, const size_t length, uint32_t& bufferedFrames);
+    bool scheduleFrame(const char* videoData, const size_t videoDataLength, const char* audioData, const size_t audioDataLength, uint32_t& bufferedFrames);
 
     void scheduledFrameCompleted();
     static void _scheduledFrameCompleted(void* context);
@@ -80,6 +81,8 @@ private:
     uint32_t channelNumber_;
     uint32_t displayMode_;
     uint32_t pixelFormat_;
+
+    AudioTransform audioTransform;
 
     static const NTV2VideoFormat defaultVideoFormat_ = NTV2_FORMAT_1080i_5994;
     static const NTV2FrameBufferFormat defaultPixelFormat_ = NTV2_FBF_10BIT_YCBCR;

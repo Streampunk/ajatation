@@ -3,7 +3,7 @@ var fs = require('fs');
 
 var frame = fs.readFileSync('EBU_3325_1080_7.v210');
 
-var playback = new ajatation.Playback(0, ajatation.bmdModeHD1080i50,
+var playback = new ajatation.Playback(0, 3, ajatation.bmdModeHD1080i50,
   ajatation.bmdFormat10BitYUV);
 
 playback.on('error', console.error.bind(null, 'BMD ERROR:'));

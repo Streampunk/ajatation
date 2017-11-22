@@ -69,6 +69,53 @@ const unsigned int TOTAL_BUFFER_SIZE(ON_DEVICE_BUFFER_SIZE + CIRCULAR_BUFFER_SIZ
 const unsigned int TARGET_FILL_LEVEL(TOTAL_BUFFER_SIZE / 2);
 const unsigned int BUFFER_PRE_FILL_MARGIN(2);
 
+#include <iostream>
+#include <fstream>
+void DumpAudioToFile(uint32_t* buffer, uint32_t bufferSize)
+{
+	ofstream myfile;
+
+	static bool started(false);
+
+	if (started)
+	{
+		myfile.open("C:\\Users\\DSI-User\\Documents\\out1.dat", ios::out | ios::app | ios::binary);
+	}
+	else
+	{
+		myfile.open("C:\\Users\\DSI-User\\Documents\\out1.dat", ios::out | ios::trunc | ios::binary);
+		started = true;
+	}
+
+	if (myfile.is_open())
+	{
+		myfile.write((char*)buffer, bufferSize);
+		myfile.close();
+	}
+
+
+}
+
+
+void DumpAudioInfo(const string &inDeviceSpecifier, char* message, bool audio, uint32_t* buffer, uint32_t bufferSize)
+{
+    if(audio)
+    {
+        bool gotData = false;
+        for(int i = 0; i < 16 && i < bufferSize; i++)
+        {
+            if(buffer[i] != 0x00) gotData = true;
+        }
+
+        cout << "!! " << inDeviceSpecifier << "-" << message << " (" << dec << bufferSize << ") bytes of " << (gotData ? "+++VALID+++": "---NULL---") << " audio !!" << endl;
+    }
+    else
+    {
+        cout << "!! NO AUDIO !!" << endl;
+    }
+}
+
+
 NTV2Player::NTV2Player (const AjaDevice::InitParams* initParams,
                         const string &               inDeviceSpecifier,
                         const bool                   inWithAudio,
@@ -450,7 +497,6 @@ void NTV2Player::ConsumerThreadStatic (AJAThread * pThread, void * pContext)    
 
 }    //    ConsumerThreadStatic
 
-
 void NTV2Player::PlayFrames (void)
 {
     AUTOCIRCULATE_TRANSFER        mOutputXferInfo;
@@ -503,6 +549,11 @@ void NTV2Player::PlayFrames (void)
 
                 //    Transfer the timecode-burned frame to the device for playout...
                 mOutputXferInfo.SetVideoBuffer (playData->fVideoBuffer, playData->fVideoBufferSize);
+
+                //DumpAudioInfo(mDeviceSpecifier, "Transferring to audio card: ", mWithAudio, playData->fAudioBuffer, playData->fAudioBufferSize);
+
+				DumpAudioToFile(playData->fAudioBuffer, playData->fAudioBufferSize);
+
                 mOutputXferInfo.SetAudioBuffer (mWithAudio ? playData->fAudioBuffer : NULL, mWithAudio ? playData->fAudioBufferSize : 0);
                 mOutputXferInfo.SetAncBuffers(fAncBuffer, NTV2_ANCSIZE_MAX, NULL, 0);
                 mDeviceRef->AutoCirculateTransfer(mOutputChannel, mOutputXferInfo);
@@ -710,30 +761,35 @@ bool NTV2Player::ScheduleFrame(
     //  If no frame is available, wait and try again
     if (frameData)
     {
-        if (videoDataLength > 0)
+        if (videoDataLength > 0 && videoData != nullptr)
         {
             // TODO: for the time being, blindly copy mis-matched frame data - potentially handle this differently
             uint32_t copyBytes = min(videoDataLength, mVideoBufferSize);
 
-            if (videoData)
-            {
-                //    Copy my pre-made test pattern into my video buffer...
-                ::memcpy(frameData->fVideoBuffer, videoData, copyBytes);
-            }
+            //    Copy my pre-made test pattern into my video buffer...
+            ::memcpy(frameData->fVideoBuffer, videoData, copyBytes);
+            frameData->fVideoBufferSize = copyBytes;
+        }
+        else
+        {
+            frameData->fVideoBufferSize = 0;
         }
 
-        if (audioDataLength > 0)
+        //DumpAudioInfo(mDeviceSpecifier, "Transferring to circular buffer: ", mWithAudio, (uint32_t*)audioData, audioDataLength);
+
+        if (audioDataLength > 0 && audioData != nullptr)
         {
             // TODO: for the time being, blindly copy mis-matched frame data - potentially handle this differently
             uint32_t copyBytes = min(audioDataLength, mAudioBufferSize);
 
-            if (audioData)
-            {
-                //    Copy my pre-made test pattern into my video buffer...
-                ::memcpy(frameData->fAudioBuffer, audioData, copyBytes);
-            }
+            //    Copy my pre-made test pattern into my video buffer...
+            ::memcpy(frameData->fAudioBuffer, audioData, copyBytes);
+            frameData->fAudioBufferSize = audioDataLength;
         }
-
+        else
+        {
+            frameData->fAudioBufferSize = 0;
+        }
         // TODO: Copy other buffers
 
         //    Signal that I'm done producing the buffer -- it's now available for playout...

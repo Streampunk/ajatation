@@ -129,16 +129,55 @@ NAN_METHOD(Playback::StopPlayback) {
   info.GetReturnValue().Set(Nan::New("Playback stopped.").ToLocalChecked());
 }
 
+
+void DumpAudioInfo(uint32_t deviceIdx, char* message, bool audio, uint32_t* buffer, uint32_t bufferSize)
+{
+    if(audio)
+    {
+        bool gotData = false;
+        for(int i = 0; i < 16 && i < bufferSize; i++)
+        {
+            if(buffer[i] != 0x00) gotData = true;
+        }
+
+        cout << "!! " << deviceIdx << "-" << message << " (" << dec << bufferSize << ") bytes of " << (gotData ? "+++VALID+++": "---NULL---") << " audio !!" << endl;
+    }
+    else
+    {
+        cout << "!! NO AUDIO !!" << endl;
+    }
+}
+
 NAN_METHOD(Playback::ScheduleFrame) {
   Playback* obj = ObjectWrap::Unwrap<Playback>(info.Holder());
-  v8::Local<v8::Object> bufObj = Nan::To<v8::Object>(info[0]).ToLocalChecked();
+  v8::Local<v8::Object> videoBufObj = Nan::To<v8::Object>(info[0]).ToLocalChecked();
 
-  char* bufData = node::Buffer::Data(bufObj);
-  size_t bufLength = node::Buffer::Length(bufObj);
+  char* videoBufData = node::Buffer::Data(videoBufObj);
+  size_t videoBufLength = node::Buffer::Length(videoBufObj);
+  char* audioBufData(nullptr);
+  size_t audioBufLength(0);
+
+  // If there is audio data, send that too
+  if(!info[1]->IsUndefined())
+  {
+    v8::Local<v8::Object> audioBufObj = Nan::To<v8::Object>(info[1]).ToLocalChecked();
+    audioBufData = node::Buffer::Data(audioBufObj);
+    audioBufLength = node::Buffer::Length(audioBufObj);
+  }
+
+  //DumpAudioInfo(obj->deviceIndex_, "Playback Sending: ", true, (uint32_t*)audioBufData, audioBufLength);
 
   uint32_t bufferedFrames(0);
 
-  obj->scheduleFrame(bufData, bufLength, bufferedFrames);
+  // Transform the input buffer to the native number of channels - currently this is 16
+  const char* audioTransformBuffer(nullptr);
+  uint32_t audioTransformBufferSize(0);
+
+
+  tie(audioTransformBuffer, audioTransformBufferSize) = 
+        obj->audioTransform.TransformToCard(reinterpret_cast<char*>(audioBufData), audioBufLength, 2, 16);
+
+  obj->scheduleFrame(videoBufData, videoBufLength, audioTransformBuffer, audioTransformBufferSize, bufferedFrames);
 
   info.GetReturnValue().Set(Nan::New<v8::Uint32>(bufferedFrames));
 }
@@ -173,7 +212,8 @@ bool Playback::initNtv2Player()
         new NTV2Player(
             &DEFAULT_INIT_PARAMS, 
             deviceSpec, 
-            (noAudio ? false : true), 
+            //(noAudio ? false : true), 
+            true, 
             channel, 
             pixelFormat, 
             outputDest, 
@@ -247,13 +287,13 @@ bool Playback::stop()
 }
 
 
-bool Playback::scheduleFrame(const char* data, const size_t length, uint32_t& bufferedFrames)
+bool Playback::scheduleFrame(const char* videoData, const size_t videoDataLength, const char* audioData, const size_t audioDataLength, uint32_t& bufferedFrames)
 {
     bool success = false;
 
     if (player_)
     {
-        success = player_->ScheduleFrame(data, length, nullptr, 0, &bufferedFrames);
+        success = player_->ScheduleFrame(videoData, videoDataLength, audioData, audioDataLength, &bufferedFrames);
     }
 
     return success;
