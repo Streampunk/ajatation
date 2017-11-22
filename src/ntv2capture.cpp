@@ -355,21 +355,13 @@ void NTV2Capture::CaptureFrames (void)
 {
     AUTOCIRCULATE_TRANSFER    inputXfer;    //    My A/C input transfer info
     NTV2AudioChannelPairs    nonPcmPairs, oldNonPcmPairs;
-    ULWord                    acOptions            (AUTOCIRCULATE_WITH_RP188 | (mWithAnc ? AUTOCIRCULATE_WITH_ANC : 0));
 
-    mDeviceRef->AutoCirculateStop(mInputChannel);    //    Just in case
+    bool setUpAC = StartAutoCirculateBuffers();
 
-    //    Tell AutoCirculate to use 7 frame buffers for capturing from the device...
+    if(setUpAC == false)
     {
-        AJAAutoLock    autoLock (mLock);    //    Avoid A/C buffer collisions with other processes
-        mDeviceRef->AutoCirculateInitForInput(mInputChannel, 
-                                              ON_DEVICE_BUFFER_SIZE, //    Number of frames to circulate
-                                              mAudioSystem,          //    Which audio system (if any)?
-                                              acOptions);            //    Include timecode (and maybe Anc too)
+        cerr << "!! Unable to start auto circulate !!" << endl;
     }
-    
-    //    Start AutoCirculate running...
-    mDeviceRef->AutoCirculateStart(mInputChannel);
 
     while (!mGlobalQuit)
     {
@@ -440,6 +432,55 @@ void NTV2Capture::CaptureFrames (void)
     mDeviceRef->AutoCirculateStop(mInputChannel);
 
 }    //    CaptureFrames
+
+
+bool NTV2Capture::StartAutoCirculateBuffers(uint32_t retries)
+{
+    ULWord acOptions(AUTOCIRCULATE_WITH_RP188 | (mWithAnc ? AUTOCIRCULATE_WITH_ANC : 0));
+
+    mDeviceRef->AutoCirculateStop(mInputChannel);    //    Just in case
+    bool setUpAC(false);
+
+    //    Tell AutoCirculate to use 7 frame buffers for capturing from the device...
+    {
+        AJAAutoLock    autoLock (mLock);    //    Avoid A/C buffer collisions with other processes
+        setUpAC = mDeviceRef->AutoCirculateInitForInput(mInputChannel, 
+                                                        ON_DEVICE_BUFFER_SIZE, //    Number of frames to circulate
+                                                        mAudioSystem,          //    Which audio system (if any)?
+                                                        acOptions);            //    Include timecode (and maybe Anc too)
+
+        if(setUpAC == false)
+        {
+            cerr << "!! Unable to initialize AutoCirculate !!" << endl;
+        }
+        //    Start AutoCirculate running...
+        setUpAC = mDeviceRef->AutoCirculateStart(mInputChannel);
+
+        if(setUpAC == false)
+        {
+            cerr << "!! Unable to start AutoCirculate !!" << endl;
+        }
+    }
+
+    // Note: there seems to be a race condition when starting the autocirculate buffer. This isn't ideal, but stopping, waiting 
+    // and re-trying seems to make this a lot more reliable. TODO: follow up with Aja to see if this is a known issue
+    if(setUpAC == false && retries > 0)
+    {
+        mDeviceRef->AutoCirculateStop(mInputChannel);
+
+        Sleep(100);
+
+        cerr << "!! Retrying init AutoCirculate, retries == " << retries << " !!" << endl;
+        setUpAC = StartAutoCirculateBuffers(retries - 1);
+
+        if(setUpAC == true)
+        {
+            cout << "!! AutoCirculate started on retry !!" << endl;
+        }
+    }
+
+    return setUpAC;
+}
 
 
 /**

@@ -139,6 +139,11 @@ class NTV2Capture
         **/
         virtual void            CaptureFrames (void);
 
+        /**
+            @brief    Try to start the AutoCirculate buffer, recursively retrying if this doesn't work first time.
+        **/
+        virtual bool            StartAutoCirculateBuffers(uint32_t retries = 3);
+
     //    Protected Class Methods
     protected:
 
