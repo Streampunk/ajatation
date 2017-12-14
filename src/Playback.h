@@ -13,11 +13,6 @@
   limitations under the License.
 */
 
-/* -LICENSE-START-
- ** TODO - add license
- ** -LICENSE-END-
- */
-
 #ifndef PLAYBACK_H
 #define PLAYBACK_H
 

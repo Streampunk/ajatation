@@ -2,6 +2,8 @@
     @file        ntv2player.cpp
     @brief        Header file for NTV2Player demonstration class
     @copyright    Copyright (C) 2013-2017 AJA Video Systems, Inc.  All rights reserved.
+
+    This version of the file is based upon the sample code provided by Aja
 **/
 
 /* Copyright 2017 Streampunk Media Ltd.

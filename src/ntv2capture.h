@@ -2,8 +2,24 @@
     @file        ntv2capture.h
     @brief        Declares the NTV2Capture class.
     @copyright    Copyright (C) 2012-2016 AJA Video Systems, Inc.  All rights reserved.
+
+    This version of the file is based upon the sample code provided by Aja
 **/
 
+/* Copyright 2017 Streampunk Media Ltd.
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+*/
 
 #ifndef _NTV2CAPTURE_H
 #define _NTV2CAPTURE_H
@@ -165,29 +181,29 @@ class NTV2Capture
     private:
         typedef    AJACircularBuffer <AVDataBuffer *>    MyCircularBuffer;
 
-        AJAThread *                    mProducerThread;        ///< @brief    My producer thread object -- does the frame capturing
-        AJALock *                    mLock;                    ///< @brief    Global mutex to avoid device frame buffer allocation race condition
-        NTV2DeviceID                mDeviceID;                ///< @brief    My device identifier
-        const std::string            mDeviceSpecifier;        ///< @brief    The device specifier string
-        const NTV2Channel            mInputChannel;            ///< @brief    My input channel
-        NTV2InputSource                mInputSource;            ///< @brief    The input source I'm using
-        NTV2VideoFormat                mVideoFormat;            ///< @brief    My video format
-        NTV2FrameBufferFormat        mPixelFormat;            ///< @brief    My pixel format
-        NTV2FormatDescriptor        mFormatDesc;
-        NTV2EveryFrameTaskMode        mSavedTaskMode;            ///< @brief    Used to restore prior every-frame task mode
-        NTV2AudioSystem                mAudioSystem;            ///< @brief    The audio system I'm using (if any)
-        bool                        mDoLevelConversion;        ///< @brief    Demonstrates a level A to level B conversion
-        bool                        mGlobalQuit;            ///< @brief    Set "true" to gracefully stop
-        bool                        mWithAnc;                ///< @brief    Capture custom anc data?
-        uint32_t                    mVideoBufferSize;        ///< @brief    My video buffer size, in bytes
-
-        AVDataBuffer                mAVHostBuffer [CIRCULAR_BUFFER_SIZE];    ///< @brief    My host buffers
-        MyCircularBuffer            mAVCircularBuffer;        ///< @brief    My ring buffer object
-
-        void *                        mFrameArrivedCallbackContext;
-        FrameArrivedCallback *        mFrameArrivedCallback;
-        bool                        mFrameLocked;
-        AjaDevice::Ref              mDeviceRef;
+        AJAThread *                  mProducerThread;                         ///< @brief    My producer thread object -- does the frame capturing
+        AJALock *                    mLock;                                   ///< @brief    Global mutex to avoid device frame buffer allocation race condition
+        NTV2DeviceID                 mDeviceID;                               ///< @brief    My device identifier
+        const std::string            mDeviceSpecifier;                        ///< @brief    The device specifier string
+        const NTV2Channel            mInputChannel;                           ///< @brief    My input channel
+        NTV2InputSource              mInputSource;                            ///< @brief    The input source I'm using
+        NTV2VideoFormat              mVideoFormat;                            ///< @brief    My video format
+        NTV2FrameBufferFormat        mPixelFormat;                            ///< @brief    My pixel format
+        NTV2FormatDescriptor         mFormatDesc;
+        NTV2EveryFrameTaskMode       mSavedTaskMode;                          ///< @brief    Used to restore prior every-frame task mode
+        NTV2AudioSystem              mAudioSystem;                            ///< @brief    The audio system I'm using (if any)
+        bool                         mDoLevelConversion;                      ///< @brief    Demonstrates a level A to level B conversion
+        bool                         mGlobalQuit;                             ///< @brief    Set "true" to gracefully stop
+        bool                         mWithAnc;                                ///< @brief    Capture custom anc data?
+        uint32_t                     mVideoBufferSize;                        ///< @brief    My video buffer size, in bytes
+                                     
+        AVDataBuffer                 mAVHostBuffer [CIRCULAR_BUFFER_SIZE];    ///< @brief    My host buffers
+        MyCircularBuffer             mAVCircularBuffer;                       ///< @brief    My ring buffer object
+                                     
+        void *                       mFrameArrivedCallbackContext;
+        FrameArrivedCallback *       mFrameArrivedCallback;
+        bool                         mFrameLocked;
+        AjaDevice::Ref               mDeviceRef;
         const AjaDevice::InitParams* mInitParams;
 };    //    NTV2Capture
 

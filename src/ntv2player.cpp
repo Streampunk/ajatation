@@ -2,6 +2,8 @@
     @file        ntv2player.cpp
     @brief        Implementation of NTV2Player class.
     @copyright    Copyright (C) 2013-2017 AJA Video Systems, Inc.  All rights reserved.
+
+    This version of the file is based upon the sample code provided by Aja
 **/
 
 /* Copyright 2017 Streampunk Media Ltd.
@@ -776,7 +778,7 @@ bool NTV2Player::ScheduleFrame(
         if (videoDataLength > 0 && videoData != nullptr)
         {
             // TODO: for the time being, blindly copy mis-matched frame data - potentially handle this differently
-            uint32_t copyBytes = min(videoDataLength, mVideoBufferSize);
+            uint32_t copyBytes = min(static_cast<uint32_t>(videoDataLength), mVideoBufferSize);
 
             //    Copy my pre-made test pattern into my video buffer...
             ::memcpy(frameData->fVideoBuffer, videoData, copyBytes);
@@ -792,11 +794,11 @@ bool NTV2Player::ScheduleFrame(
         if (audioDataLength > 0 && audioData != nullptr)
         {
             // TODO: for the time being, blindly copy mis-matched frame data - potentially handle this differently
-            uint32_t copyBytes = min(audioDataLength, mAudioBufferSize);
+            uint32_t copyBytes = min(static_cast<uint32_t>(audioDataLength), mAudioBufferSize);
 
             //    Copy my pre-made test pattern into my video buffer...
             ::memcpy(frameData->fAudioBuffer, audioData, copyBytes);
-            frameData->fAudioBufferSize = audioDataLength;
+            frameData->fAudioBufferSize = static_cast<uint32_t>(audioDataLength);
         }
         else
         {

@@ -13,11 +13,6 @@
   limitations under the License.
 */
 
-/* -LICENSE-START-
- ** TODO: add license
- ** -LICENSE-END-
- */
-
 #include "Playback.h"
 #include <string.h>
 #include "ntv2player.h"

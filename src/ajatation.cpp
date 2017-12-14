@@ -13,9 +13,6 @@
   limitations under the License.
 */
 
-/* TODO - Add license
-*/
-
 #define _WINSOCKAPI_
 
 #include <node.h>

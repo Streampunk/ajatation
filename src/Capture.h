@@ -13,10 +13,6 @@
   limitations under the License.
 */
 
-/* TODO: add license
- ** 
- */
-
 #ifndef CAPTURE_H
 #define CAPTURE_H
 
