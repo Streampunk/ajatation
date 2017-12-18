@@ -79,21 +79,36 @@ Capture.prototype.stop = function () {
 }
 
 Capture.prototype.enableAudio = function (sampleRate, sampleType, channelCount) {
-  try {
-    if (!this.initialised) {
-      this.initialised = this.capture.init() ? true : false;
-      if (!this.initialised) {
-        console.error('Cannot initialise audio when no device is present.');
-        return 'Cannot initialise audio when no device is present.';
-      }
+    try {
+        if (!this.initialised) {
+            this.initialised = this.capture.init() ? true : false;
+            if (!this.initialised) {
+                console.error('Cannot initialise audio when no device is present.');
+                return 'Cannot initialise audio when no device is present.';
+            }
+        }
+        return this.capture.enableAudio(
+          typeof sampleRate === 'string' ? +sampleRate : sampleRate,
+          typeof sampleType === 'string' ? +sampleType: sampleType,
+          typeof channelCount === 'string' ? +channelCount : channelCount);
+    } catch (err) {
+        return "Error when enabling audio: " + err;
     }
-    return this.capture.enableAudio(
-      typeof sampleRate === 'string' ? +sampleRate : sampleRate,
-      typeof sampleType === 'string' ? +sampleType: sampleType,
-      typeof channelCount === 'string' ? +channelCount : channelCount);
-  } catch (err) {
-    return "Error when enabling audio: " + err;
-  }
+}
+
+Capture.prototype.getVideoFormat = function () {
+    try {
+        if (!this.initialised) {
+            this.initialised = this.capture.init() ? true : false;
+            if (!this.initialised) {
+                console.error('Cannot get video format when no device is present.');
+                return 'Cannot get video format when no device is present.';
+            }
+        }
+        return this.capture.getVideoFormat();
+    } catch (err) {
+        return "Error when get video format: " + err;
+    }
 }
 
 

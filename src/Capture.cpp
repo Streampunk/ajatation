@@ -58,6 +58,7 @@ NAN_MODULE_INIT(Capture::Init) {
   Nan::SetPrototypeMethod(tpl, "doCapture", DoCapture);
   Nan::SetPrototypeMethod(tpl, "stop", StopCapture);
   Nan::SetPrototypeMethod(tpl, "enableAudio", EnableAudio);
+  Nan::SetPrototypeMethod(tpl, "getVideoFormat", GetVideoFormat);
 
   constructor().Reset(Nan::GetFunction(tpl).ToLocalChecked());
   Nan::Set(target, Nan::New("Capture").ToLocalChecked(),
@@ -147,6 +148,12 @@ NAN_METHOD(Capture::StopCapture) {
 }
 
 
+NAN_METHOD(Capture::GetVideoFormat) {
+  Capture* obj = ObjectWrap::Unwrap<Capture>(info.Holder());
+
+  info.GetReturnValue().Set(Nan::New<v8::Uint32>(obj->getVideoFormat()));
+}
+
 bool Capture::capture()
 {
     bool success = false;
@@ -176,6 +183,19 @@ bool Capture::stop()
     return success;
 }
 
+GenericDisplayMode Capture::getVideoFormat()
+{
+    GenericDisplayMode videoFormat = bmdModeUnknown;
+
+    if (capture_)
+    {
+        NTV2VideoFormat nativeFormat = capture_->GetVideoFormat();
+
+        videoFormat = DISPLAY_MODE_MAP.ToA(nativeFormat);
+    }
+
+    return videoFormat;
+}
 
 bool Capture::initNtv2Capture()
 {

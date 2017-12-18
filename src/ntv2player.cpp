@@ -290,6 +290,8 @@ AJAStatus NTV2Player::SetUpVideo ()
     //    Configure the device to handle the requested video format...
     mDeviceRef->SetVideoFormat(false, mVideoFormat, false, false, mOutputChannel);
 
+    {cout << "Set Output Video Format: " << mVideoFormat << endl;}
+
     if (!::NTV2DeviceCanDo3GLevelConversion (mDeviceID) && mDoLevelConversion && ::IsVideoFormatA (mVideoFormat))
         mDoLevelConversion = false;
     if (mDoLevelConversion)

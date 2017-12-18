@@ -338,6 +338,8 @@ NTV2FrameBufferFormat Playback::getPixelFormat(uint32_t genericPixelFormat)
 
 
 NAUV_WORK_CB(Playback::FrameCallback) {
+// TODO - this code is not necessary - remove it!
+//
   Nan::HandleScope scope;
   Playback *playback = static_cast<Playback*>(async->data);
   uv_mutex_lock(&playback->padlock);
