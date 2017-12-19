@@ -219,7 +219,7 @@ AJAStatus NTV2Capture::SetupAudio (void)
     if (::NTV2DeviceGetNumAudioSystems(mDeviceID) > 1  &&  UWord(mInputChannel) < ::NTV2DeviceGetNumAudioSystems(mDeviceID))
         mAudioSystem = ::NTV2ChannelToAudioSystem (mInputChannel);
 
-    cout << "!!!!!!!Setting Up Audio for Channel " << mInputChannel << "!!!!!!!" << endl;
+    cout << "NOTE: Setting Up Audio for Channel " << mInputChannel << endl;
     cout << "    mAudioSystem  = " << mAudioSystem << endl;
     cout << "    embedded a in = " << ::NTV2ChannelToEmbeddedAudioInput(mInputChannel) << endl;
 
