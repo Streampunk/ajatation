@@ -290,6 +290,8 @@ AJAStatus NTV2Player::SetUpVideo ()
     //    Configure the device to handle the requested video format...
     mDeviceRef->SetVideoFormat(false, mVideoFormat, false, false, mOutputChannel);
 
+    {cout << "Set Output Video Format: " << mVideoFormat << endl;}
+
     if (!::NTV2DeviceCanDo3GLevelConversion (mDeviceID) && mDoLevelConversion && ::IsVideoFormatA (mVideoFormat))
         mDoLevelConversion = false;
     if (mDoLevelConversion)
@@ -769,8 +771,6 @@ bool NTV2Player::ScheduleFrame(
     LOG_BUFFER_STATE("Scheduling frame");
 
     AVDataBuffer* frameData(mAVCircularBuffer.StartProduceNextBuffer());
-
-    //cout << "!! TEST, " << clock() << ", RC, ," << endl;
 
     //  If no frame is available, wait and try again
     if (frameData)

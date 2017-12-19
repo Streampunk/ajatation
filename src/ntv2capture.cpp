@@ -195,6 +195,8 @@ AJAStatus NTV2Capture::SetupVideo (void)
     mDeviceRef->SetReference(true, ::NTV2InputSourceToReferenceSource(mInputSource));
     mDeviceRef->SetVideoFormat(true, mVideoFormat, false, false, mInputChannel);
 
+    {cout << "Set Input Video Format: " << mVideoFormat << endl;}
+
     //    Set the frame buffer pixel format for all the channels on the device
     //    (assuming it supports that pixel format -- otherwise default to 8-bit YCbCr)...
     if (!::NTV2DeviceCanDoFrameBufferFormat (mDeviceID, mPixelFormat))
@@ -385,7 +387,6 @@ void NTV2Capture::CaptureFrames (void)
         AUTOCIRCULATE_STATUS    acStatus;
         mDeviceRef->AutoCirculateGetStatus(mInputChannel, acStatus);
 
-        // TODO - signal an error if we can't get an input frame
         if (acStatus.IsRunning () && acStatus.HasAvailableInputFrame ())
         {
             LogBufferState(acStatus.GetNumAvailableOutputFrames());

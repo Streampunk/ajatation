@@ -25,6 +25,7 @@
 
 #include "ntv2capture.h"
 #include "AudioTransform.h"
+#include "gen2ajaTypeMaps.h"
 
 namespace streampunk {
 
@@ -52,6 +53,7 @@ private:
 
   bool capture();
   bool stop();
+  GenericDisplayMode getVideoFormat();
 
   NTV2FrameBufferFormat getPixelFormat(uint32_t genericPixelFormat);
 
@@ -66,6 +68,8 @@ private:
   static NAN_METHOD(StopCapture);
 
   static NAN_METHOD(EnableAudio);
+
+  static NAN_METHOD(GetVideoFormat);
 
   static NAUV_WORK_CB(FrameCallback);
 
