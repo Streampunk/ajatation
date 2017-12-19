@@ -387,7 +387,6 @@ void NTV2Capture::CaptureFrames (void)
         AUTOCIRCULATE_STATUS    acStatus;
         mDeviceRef->AutoCirculateGetStatus(mInputChannel, acStatus);
 
-        // TODO - signal an error if we can't get an input frame
         if (acStatus.IsRunning () && acStatus.HasAvailableInputFrame ())
         {
             LogBufferState(acStatus.GetNumAvailableOutputFrames());

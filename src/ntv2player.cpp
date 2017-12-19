@@ -772,8 +772,6 @@ bool NTV2Player::ScheduleFrame(
 
     AVDataBuffer* frameData(mAVCircularBuffer.StartProduceNextBuffer());
 
-    //cout << "!! TEST, " << clock() << ", RC, ," << endl;
-
     //  If no frame is available, wait and try again
     if (frameData)
     {

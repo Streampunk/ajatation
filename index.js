@@ -13,9 +13,6 @@
   limitations under the License.
 */
 
-/* TODO - add license
-*/
-
 'use strict';
 var os = require('os');
 var isWinOrMac = (os.platform() === 'win32') || (os.platform() === 'darwin');
