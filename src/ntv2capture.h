@@ -67,13 +67,13 @@ class NTV2Capture
                                             Defaults to false.
         **/
         NTV2Capture (   const AjaDevice::InitParams* initParams,
-                        const std::string             inDeviceSpecifier    = "0",
-                        const bool                     inWithAudio            = true,
-                        const NTV2Channel             inChannel            = NTV2_CHANNEL1,
-                        const NTV2FrameBufferFormat     inPixelFormat        = NTV2_FBF_8BIT_YCBCR,
-                        const bool                     inDoLvlABConversion    = false,
-                        const bool                     inMultiFormat        = false,
-                        const bool                     inWithAnc            = false);
+                        const std::string            inDeviceSpecifier    = "0",
+                        const bool                   inWithAudio          = true,
+                        const NTV2Channel            inChannel            = NTV2_CHANNEL1,
+                        const NTV2FrameBufferFormat  inPixelFormat        = NTV2_FBF_8BIT_YCBCR,
+                        const bool                   inDoLvlABConversion  = false,
+                        const bool                   inMultiFormat        = false,
+                        const bool                   inWithAnc            = false);
 
         virtual                        ~NTV2Capture ();
 
@@ -165,7 +165,7 @@ class NTV2Capture
 
         /**
             @brief    This is the capture thread's static callback function that gets called when the capture thread runs.
-                    This function gets "Attached" to the AJAThread instance.
+                      This function gets "Attached" to the AJAThread instance.
             @param[in]    pThread        Points to the AJAThread instance.
             @param[in]    pContext    Context information to pass to the thread.
                                     (For this application, this will point to the NTV2Capture instance.)

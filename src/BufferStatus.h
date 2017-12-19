@@ -19,7 +19,7 @@
 
 namespace streampunk {
 
-// Class to manage the reservation and release of AJA devices between multiple nodes
+// Class to manage the recording of buffer statistics for performance tuning the AV pipeline
 class BufferStatus 
 {
 // Types

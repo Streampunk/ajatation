@@ -43,18 +43,18 @@ NTV2Capture::NTV2Capture (const streampunk::AjaDevice::InitParams* initParams,
                           const bool                    inDoMultiFormat,
                           const bool                    inWithAnc)
 
-    :    mProducerThread                (NULL),
-        mLock                        (new AJALock (CNTV2DemoCommon::GetGlobalMutexName ())),
-        mDeviceID                    (DEVICE_ID_NOTFOUND),
+:       mProducerThread             (NULL),
+        mLock                       (new AJALock (CNTV2DemoCommon::GetGlobalMutexName ())),
+        mDeviceID                   (DEVICE_ID_NOTFOUND),
         mDeviceSpecifier            (inDeviceSpecifier),
-        mInputChannel                (inChannel),
+        mInputChannel               (inChannel),
         mInputSource                (::NTV2ChannelToInputSource (inChannel)),
         mVideoFormat                (NTV2_FORMAT_UNKNOWN),
         mPixelFormat                (inPixelFormat),
-        mSavedTaskMode                (NTV2_DISABLE_TASKS),
+        mSavedTaskMode              (NTV2_DISABLE_TASKS),
         mAudioSystem                (inWithAudio ? NTV2_AUDIOSYSTEM_1 : NTV2_AUDIOSYSTEM_INVALID),
-        mDoLevelConversion            (inLevelConversion),
-        mGlobalQuit                    (false),
+        mDoLevelConversion          (inLevelConversion),
+        mGlobalQuit                 (false),
         mWithAnc                    (inWithAnc),
         mVideoBufferSize            (0),
         mFrameArrivedCallbackContext(NULL),
@@ -123,7 +123,7 @@ AJAStatus NTV2Capture::Init (void)
 
     if (AJA_SUCCESS(status))
     {
-        mDeviceID = mDeviceRef->GetDeviceID();                        //    Keep the device ID handy, as it's used frequently
+        mDeviceID = mDeviceRef->GetDeviceID();      //    Keep the device ID handy, as it's used frequently
         if (!::NTV2DeviceCanDoCapture(mDeviceID))
         {
             cerr << "## ERROR:  Device '" << mDeviceSpecifier << "' cannot capture" << endl;  return AJA_STATUS_FEATURE;
@@ -253,14 +253,14 @@ void NTV2Capture::SetupHostBuffers (void)
     //    Allocate and add each in-host AVDataBuffer to my circular buffer member variable...
     for (unsigned bufferNdx (0);  bufferNdx < CIRCULAR_BUFFER_SIZE;  bufferNdx++)
     {
-        mAVHostBuffer [bufferNdx].fVideoBuffer        = reinterpret_cast <uint32_t *> (new uint8_t [mVideoBufferSize]);
-        mAVHostBuffer [bufferNdx].fVideoBufferSize    = mVideoBufferSize;
-        mAVHostBuffer [bufferNdx].fAudioBuffer        = NTV2_IS_VALID_AUDIO_SYSTEM (mAudioSystem) ? reinterpret_cast <uint32_t *> (new uint8_t [NTV2_AUDIOSIZE_MAX]) : 0;
-        mAVHostBuffer [bufferNdx].fAudioBufferSize    = NTV2_IS_VALID_AUDIO_SYSTEM (mAudioSystem) ? NTV2_AUDIOSIZE_MAX : 0;
+        mAVHostBuffer [bufferNdx].fVideoBuffer      = reinterpret_cast <uint32_t *> (new uint8_t [mVideoBufferSize]);
+        mAVHostBuffer [bufferNdx].fVideoBufferSize  = mVideoBufferSize;
+        mAVHostBuffer [bufferNdx].fAudioBuffer      = NTV2_IS_VALID_AUDIO_SYSTEM (mAudioSystem) ? reinterpret_cast <uint32_t *> (new uint8_t [NTV2_AUDIOSIZE_MAX]) : 0;
+        mAVHostBuffer [bufferNdx].fAudioBufferSize  = NTV2_IS_VALID_AUDIO_SYSTEM (mAudioSystem) ? NTV2_AUDIOSIZE_MAX : 0;
         mAVHostBuffer [bufferNdx].fAncBuffer        = mWithAnc ? reinterpret_cast <uint32_t *> (new uint8_t [NTV2_ANCSIZE_MAX]) : 0;
         mAVHostBuffer [bufferNdx].fAncBufferSize    = mWithAnc ? NTV2_ANCSIZE_MAX : 0;
-        mAVHostBuffer [bufferNdx].fAncF2Buffer        = mWithAnc ? reinterpret_cast <uint32_t *> (new uint8_t [NTV2_ANCSIZE_MAX]) : 0;
-        mAVHostBuffer [bufferNdx].fAncF2BufferSize    = mWithAnc ? NTV2_ANCSIZE_MAX : 0;
+        mAVHostBuffer [bufferNdx].fAncF2Buffer      = mWithAnc ? reinterpret_cast <uint32_t *> (new uint8_t [NTV2_ANCSIZE_MAX]) : 0;
+        mAVHostBuffer [bufferNdx].fAncF2BufferSize  = mWithAnc ? NTV2_ANCSIZE_MAX : 0;
         mAVCircularBuffer.Add (& mAVHostBuffer [bufferNdx]);
     }    //    for each AVDataBuffer
 
@@ -274,10 +274,10 @@ void NTV2Capture::RouteInputSignal (void)
     if (!::NTV2DeviceCanDoInputSource (mDeviceID, mInputSource))
         mInputSource = NTV2_INPUTSOURCE_SDI1;
 
-    const bool                        isRGB                    (::IsRGBFormat (mPixelFormat));
-    const NTV2OutputCrosspointID    sdiInputWidgetOutputXpt    (::GetSDIInputOutputXptFromChannel (mInputChannel));
-    const NTV2InputCrosspointID        frameBufferInputXpt        (::GetFrameBufferInputXptFromChannel (mInputChannel));
-    const NTV2InputCrosspointID        cscWidgetVideoInputXpt    (::GetCSCInputXptFromChannel (mInputChannel));
+    const bool                      isRGB                    (::IsRGBFormat (mPixelFormat));
+    const NTV2OutputCrosspointID    sdiInputWidgetOutputXpt  (::GetSDIInputOutputXptFromChannel (mInputChannel));
+    const NTV2InputCrosspointID     frameBufferInputXpt      (::GetFrameBufferInputXptFromChannel (mInputChannel));
+    const NTV2InputCrosspointID     cscWidgetVideoInputXpt   (::GetCSCInputXptFromChannel (mInputChannel));
     const NTV2OutputCrosspointID    cscWidgetRGBOutputXpt    (::GetCSCOutputXptFromChannel (mInputChannel, /*inIsKey*/ false, /*inIsRGB*/ true));
 
     if (isRGB)
@@ -372,7 +372,7 @@ void NTV2Capture::ProducerThreadStatic (AJAThread * pThread, void * pContext)   
 
 void NTV2Capture::CaptureFrames (void)
 {
-    AUTOCIRCULATE_TRANSFER    inputXfer;    //    My A/C input transfer info
+    AUTOCIRCULATE_TRANSFER   inputXfer;    //    My A/C input transfer info
     NTV2AudioChannelPairs    nonPcmPairs, oldNonPcmPairs;
 
     bool setUpAC = StartAutoCirculateBuffers();

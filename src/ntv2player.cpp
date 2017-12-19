@@ -134,7 +134,7 @@ NTV2Player::NTV2Player (const AjaDevice::InitParams* initParams,
                         const bool                   inDoMultiChannel,
                         const AJAAncillaryDataType   inSendHDRType)
 
-    :    mConsumerThread             (NULL),
+:       mConsumerThread              (NULL),
         mProducerThread              (NULL),
         mLock                        (new AJALock (CNTV2DemoCommon::GetGlobalMutexName ())),
         mCurrentFrame                (0),
@@ -552,8 +552,6 @@ void NTV2Player::PlayFrames (void)
             AVDataBuffer *    playData    (mAVCircularBuffer.StartConsumeNextBuffer ());
             if (playData)
             {
-                //cout << "!! TEST, " << clock() << ", , TX" << endl;
-
                 //    Include timecode in output signal...
                 mOutputXferInfo.SetOutputTimeCode (NTV2_RP188 (playData->fRP188Data), ::NTV2ChannelToTimecodeIndex (mOutputChannel));
 
@@ -608,10 +606,6 @@ void NTV2Player::LogBufferState(ULWord cardBufferFreeSlots)
 {
     auto cardBufferUsedSlots = ON_DEVICE_BUFFER_SIZE - cardBufferFreeSlots;
     auto circBufferUsedSlots = mAVCircularBuffer.GetCircBufferCount();
-
-    // Test traces for capturing buffer state:
-    //cout << "!! TEST, " << clock() << ", " << cardBufferFreeSlots << ", " << cardBufferUsedSlots << ", " << circBufferUsedSlots << ", " << (cardBufferUsedSlots + circBufferUsedSlots) << endl;
-    //cout << "!! TEST: cardf=" << cardBufferFreeSlots << ", cardu=" << cardBufferUsedSlots << ", crcu=" << circBufferUsedSlots << ", tu=" << (cardBufferUsedSlots + circBufferUsedSlots) << endl;
 
     // Store the total number of used buffer slots to return from the producer thread
     SetUsedBuffers(cardBufferUsedSlots + circBufferUsedSlots);

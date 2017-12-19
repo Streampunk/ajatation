@@ -22,7 +22,10 @@
 
 namespace streampunk
 {
- 
+
+namespace Aja
+{
+
 class AudioTransform
 {
     static const uint32_t MAX_BUFFER_SIZE = NTV2_AUDIOSIZE_MAX;
@@ -132,4 +135,5 @@ private:
     char outputBuffer[MAX_BUFFER_SIZE];
 };
 
+}
 }

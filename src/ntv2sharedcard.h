@@ -30,14 +30,14 @@ public:
     /**
         @brief    Constructs me from the given parameters.
         @param[in]    inDeviceIndex    A zero-based index number that identifies which device to open,
-                                    which should be the number received from the NTV2DeviceScanner.
-        @param[in]    inDisplayError    If true, displays a message box if there's a failure while opening.
-                                    This parameter is obsolete and won't be available in the future.
-        @param[in]    inDeviceType    Specifies the NTV2DeviceType of the device to open.
-                                    This parameter is obsolete and won't be available in the future.
-        @param[in]    pInHostName        If non-NULL, must be a valid pointer to a character buffer that
-                                    contains the name of a host that has one or more AJA devices.
-                                    Defaults to NULL (the local host).
+                                       which should be the number received from the NTV2DeviceScanner.
+        @param[in]    inDisplayError   If true, displays a message box if there's a failure while opening.
+                                       This parameter is obsolete and won't be available in the future.
+        @param[in]    inDeviceType     Specifies the NTV2DeviceType of the device to open.
+                                       This parameter is obsolete and won't be available in the future.
+        @param[in]    pInHostName      If non-NULL, must be a valid pointer to a character buffer that
+                                       contains the name of a host that has one or more AJA devices.
+                                       Defaults to NULL (the local host).
         @nosubgrouping
     **/
     explicit CNTV2SharedCard ( const UWord inDeviceIndex,

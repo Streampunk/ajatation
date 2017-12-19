@@ -104,7 +104,6 @@ NAN_METHOD(Playback::DoPlayback) {
   obj->playbackCB_.Reset(cb);
 
   bool result = obj->play();
-  // printf("Playback result code %i and timescale %I64d.\n", result, obj->m_timeScale);
 
   if (result == true) {
     info.GetReturnValue().Set(Nan::New("Playback started.").ToLocalChecked());

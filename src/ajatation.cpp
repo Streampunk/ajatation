@@ -23,8 +23,6 @@
 #ifdef WIN32
 #include <tchar.h>
 #include <conio.h>
-#include <objbase.h>        // Necessary for COM
-#include <comdef.h>
 #endif
 
 #include "ajabase/system/info.h"
@@ -89,29 +87,9 @@ NAN_METHOD(getFirstDevice) {
 }
 
 
-
-/* static Local<Object> makeBuffer(char* data, size_t size) {
-  HandleScope scope;
-
-  // It ends up being kind of a pain to convert a slow buffer into a fast
-  // one since the fast part is implemented in JavaScript.
-  Local<Buffer> slowBuffer = Buffer::New(data, size);
-  // First get the Buffer from global scope...
-  Local<Object> global = Context::GetCurrent()->Global();
-  Local<Value> bv = global->Get(String::NewSymbol("Buffer"));
-  assert(bv->IsFunction());
-  Local<Function> b = Local<Function>::Cast(bv);
-  // ...call Buffer() with the slow buffer and get a fast buffer back...
-  Handle<Value> argv[3] = { slowBuffer->handle_, Integer::New(size), Integer::New(0) };
-  Local<Object> fastBuffer = b->NewInstance(3, argv);
-
-  return scope.Close(fastBuffer);
-} */
-
 NAN_MODULE_INIT(Init) {
   Nan::Export(target, "deviceSdkVersion", deviceSdkVersion);
   Nan::Export(target, "getFirstDevice", getFirstDevice);
-  //streampunk::Capture::Init(target);
   streampunk::Playback::Init(target);
   streampunk::Capture::Init(target);
 }

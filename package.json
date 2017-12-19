@@ -4,7 +4,7 @@
   "description": "Async node.js interface to Aja Kona IP capture and playback devices.",
   "main": "index.js",
   "scripts": {
-    "install": "node-gyp rebuild",
+    "install": "node-gyp rebuild --msvs_version=2013",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
